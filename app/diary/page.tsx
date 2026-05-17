@@ -1,6 +1,8 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
+import TradingViewChart from "@/components/TradingViewChart";
+import TradingViewMini from "@/components/TradingViewMiniChart";
 import {
   Area,
   CartesianGrid,
@@ -712,6 +714,33 @@ function HoldingsSection({
           </div>
         )}
       </div>
+
+      {selectedHolding && (
+        <div className="mt-6 bg-white border border-[#E0D9C8] rounded-2xl p-5">
+          <div className="flex items-center justify-between mb-4">
+            <div>
+              <p className="font-mono text-xs text-gray-400 tracking-widest">PRICE CHART</p>
+              <h3 className="text-lg font-bold mt-1">
+                {selectedHolding} — TradingView
+              </h3>
+            </div>
+            <div className="flex gap-2">
+              {["1D", "1W", "1M", "3M", "1Y"].map((period) => (
+                <button
+                  key={period}
+                  className="px-3 py-1 text-xs font-mono border border-[#E0D9C8] rounded-lg hover:bg-[#F5F0E8] transition-colors"
+                >
+                  {period}
+                </button>
+              ))}
+            </div>
+          </div>
+          <TradingViewChart symbol={selectedHolding} height={450} />
+          <p className="text-xs font-mono text-gray-400 mt-2 text-right">
+            Powered by TradingView · Data delayed 15 min
+          </p>
+        </div>
+      )}
     </section>
   );
 }
@@ -798,7 +827,7 @@ function HoldingsTable({
                     ${Math.round(livePosition).toLocaleString("en-US")}
                   </td>
                   <td className="px-4 py-3">
-                    <div className="flex items-center gap-2">
+                    <div className="flex items-center gap-2 mb-1">
                       <div className="w-16 h-1.5 bg-[#E0D9C8] rounded-full overflow-hidden">
                         <div
                           className="h-full bg-[#4a5c3f] rounded-full"
@@ -807,6 +836,7 @@ function HoldingsTable({
                       </div>
                       <span className="font-mono text-sm tabular-nums">{h.weight}%</span>
                     </div>
+                    <TradingViewMini symbol={h.ticker} />
                   </td>
                   <td className="px-4 py-3 text-right">
                     <div
