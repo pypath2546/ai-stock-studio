@@ -1,7 +1,8 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { Play } from "lucide-react";
+import { Play, TrendingUp } from "lucide-react";
+import { useRouter } from "next/navigation";
 import { useNewsOutline } from "@/lib/news-outline-context";
 
 type AgentStatus = "idle" | "running" | "done";
@@ -78,17 +79,44 @@ const AI_OUTLINE = [
   { href: "#ai-report",       label: "Report" },
 ];
 
+interface WatchlistStock {
+  ticker: string;
+  company: string;
+  shares: number;
+  cost: number;
+}
+
+const WATCHLIST_STOCKS: WatchlistStock[] = [
+  { ticker: "GOOGL", company: "Alphabet",     shares: 7,  cost: 2392 },
+  { ticker: "AVGO",  company: "Broadcom",     shares: 4,  cost: 1626 },
+  { ticker: "AMZN",  company: "Amazon",       shares: 6,  cost: 1503 },
+  { ticker: "UBER",  company: "Uber",         shares: 18, cost: 1388 },
+  { ticker: "CRWD",  company: "CrowdStrike",  shares: 2,  cost: 848  },
+  { ticker: "RBRK",  company: "Rubrik",       shares: 16, cost: 837  },
+  { ticker: "SOI.PA",company: "Soitec",       shares: 7,  cost: 806  },
+];
+
 export default function AIPage() {
   const [agentStatuses, setAgentStatuses] = useState<Record<string, AgentStatus>>({});
   const [isAnalyzing, setIsAnalyzing]     = useState(false);
   const [activePipeline, setActivePipeline] = useState("All");
   const [analysisResult, setAnalysisResult] = useState<AnalysisResult | null>(null);
+  const [showWatchlist, setShowWatchlist]   = useState(false);
+  const [watchlistPrices, setWatchlistPrices] = useState<Record<string, { last: number | null; change: string | null }>>({});
+  const router = useRouter();
   const { setItems } = useNewsOutline();
 
   useEffect(() => {
     setItems(AI_OUTLINE);
     return () => setItems(null);
   }, [setItems]);
+
+  useEffect(() => {
+    fetch("/api/stocks")
+      .then(r => r.json())
+      .then(data => setWatchlistPrices(data.prices || {}))
+      .catch(() => {});
+  }, []);
 
   const handleRunAnalysis = async () => {
     setIsAnalyzing(true);
@@ -162,6 +190,13 @@ export default function AIPage() {
                 Reset ↺
               </button>
             )}
+            <button
+              onClick={() => setShowWatchlist(!showWatchlist)}
+              className="flex items-center gap-2 px-4 py-3 border border-[#E0D9C8] bg-white rounded-xl hover:bg-[#F5F0E8] transition-all font-medium text-gray-700"
+            >
+              <TrendingUp className="w-4 h-4" />
+              Watchlist
+            </button>
             <button
               onClick={handleRunAnalysis}
               disabled={isAnalyzing}
@@ -318,6 +353,83 @@ export default function AIPage() {
           CLICK A CARD TO INSPECT · RUN TO ANALYZE · ESC TO RESET
         </p>
       </footer>
+
+      {/* Watchlist slide-over */}
+      <div
+        className={`fixed top-0 right-0 h-full w-80 bg-white border-l border-[#E0D9C8] shadow-xl z-50 transform transition-transform duration-300 ${
+          showWatchlist ? "translate-x-0" : "translate-x-full"
+        }`}
+      >
+        <div className="p-5 border-b border-[#E0D9C8] flex justify-between items-center">
+          <div>
+            <h3 className="font-bold text-lg">Watchlist</h3>
+            <p className="text-xs font-mono text-gray-400">Yim&apos;s Portfolio · Live</p>
+          </div>
+          <button
+            onClick={() => setShowWatchlist(false)}
+            className="text-gray-400 hover:text-gray-600 text-lg leading-none"
+          >
+            ✕
+          </button>
+        </div>
+
+        <div className="p-4 space-y-2 overflow-y-auto h-[calc(100%-80px)]">
+          {WATCHLIST_STOCKS.map(stock => {
+            const price = watchlistPrices[stock.ticker];
+            const liveValue = price?.last ? stock.shares * price.last : stock.cost;
+            const pl = liveValue - stock.cost;
+            const plPct = ((pl / stock.cost) * 100).toFixed(2);
+            const isPositive = pl >= 0;
+            const changeNum = price?.change != null ? parseFloat(price.change) : null;
+
+            return (
+              <div
+                key={stock.ticker}
+                onClick={() => { setShowWatchlist(false); router.push("/diary"); }}
+                className="bg-[#F8F5EE] border border-[#E0D9C8] rounded-xl p-3 cursor-pointer hover:bg-[#F0E8D8] transition-colors"
+              >
+                <div className="flex justify-between items-start">
+                  <div>
+                    <p className="font-bold text-sm">{stock.ticker}</p>
+                    <p className="text-xs text-gray-400">{stock.company}</p>
+                  </div>
+                  <div className="text-right">
+                    <p className="font-mono text-sm font-bold tabular-nums">
+                      {price?.last != null ? `$${price.last.toFixed(2)}` : "…"}
+                    </p>
+                    {changeNum != null && (
+                      <p className={`text-xs font-mono tabular-nums ${changeNum >= 0 ? "text-emerald-600" : "text-red-500"}`}>
+                        {changeNum >= 0 ? "▲" : "▼"} {Math.abs(changeNum).toFixed(2)}%
+                      </p>
+                    )}
+                  </div>
+                </div>
+                <div className="mt-2 flex justify-between text-xs text-gray-400 font-mono tabular-nums">
+                  <span>{stock.shares} shares</span>
+                  <span className={isPositive ? "text-emerald-600" : "text-red-500"}>
+                    P/L: {isPositive ? "+" : ""}${pl.toFixed(0)} ({isPositive ? "+" : ""}{plPct}%)
+                  </span>
+                </div>
+              </div>
+            );
+          })}
+
+          <a
+            href="/diary"
+            className="block w-full text-center py-3 mt-4 border border-[#4a5c3f] text-[#4a5c3f] rounded-xl text-sm font-medium hover:bg-[#4a5c3f] hover:text-white transition-colors"
+          >
+            View Full Portfolio →
+          </a>
+        </div>
+      </div>
+
+      {/* Overlay */}
+      {showWatchlist && (
+        <div
+          className="fixed inset-0 bg-black/20 z-40"
+          onClick={() => setShowWatchlist(false)}
+        />
+      )}
     </div>
   );
 }
