@@ -40,6 +40,20 @@ interface ScreenedStock {
   notes: string;
 }
 
+interface PriceData {
+  ticker: string;
+  last: number | null;
+  prevClose: number | null;
+  change: string | null;
+  currency: string;
+}
+
+type PriceMap = Record<string, PriceData>;
+
+const CASH_USD = 599;
+const SEED_USD = 10000;
+const SPY_INCEPTION_PCT = 1.48;
+
 const SNAPSHOTS = [
   { date: "2026-04-19", label: "Seed" },
   { date: "2026-04-25", label: "Wk 1" },
@@ -165,10 +179,6 @@ const BENCHMARKS = [
   { key: "SOXX", label: "SOXX", sub: "Semiconductor", color: "#f97316" },
 ] as const;
 
-function fmtCurrency(n: number): string {
-  return `$${n.toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
-}
-
 function fmtInt(n: number): string {
   return `$${n.toLocaleString("en-US")}`;
 }
@@ -193,7 +203,19 @@ export default function DiaryPage() {
   const [activeSnapshot, setActiveSnapshot] = useState(2);
   const [activeBenchmarks, setActiveBenchmarks] = useState<string[]>(["SPY"]);
   const [selectedHolding, setSelectedHolding] = useState<string | null>(null);
+  const [prices, setPrices] = useState<PriceMap>({});
+  const [priceLoading, setPriceLoading] = useState(true);
   const { setItems } = useNewsOutline();
+
+  useEffect(() => {
+    fetch("/api/stocks")
+      .then((r) => r.json())
+      .then((data) => {
+        setPrices(data.prices || {});
+        setPriceLoading(false);
+      })
+      .catch(() => setPriceLoading(false));
+  }, []);
 
   useEffect(() => {
     const base = activeTab === "dashboard" ? DASHBOARD_OUTLINE : ABOUT_OUTLINE;
@@ -217,6 +239,8 @@ export default function DiaryPage() {
           setActiveBenchmarks={setActiveBenchmarks}
           selectedHolding={selectedHolding}
           setSelectedHolding={setSelectedHolding}
+          prices={prices}
+          priceLoading={priceLoading}
         />
       ) : (
         <AboutTab />
@@ -267,6 +291,8 @@ function DashboardTab({
   setActiveBenchmarks,
   selectedHolding,
   setSelectedHolding,
+  prices,
+  priceLoading,
 }: {
   activeSnapshot: number;
   setActiveSnapshot: (i: number) => void;
@@ -274,11 +300,13 @@ function DashboardTab({
   setActiveBenchmarks: (b: string[]) => void;
   selectedHolding: string | null;
   setSelectedHolding: (t: string | null) => void;
+  prices: PriceMap;
+  priceLoading: boolean;
 }) {
   return (
     <div className="pt-8">
       <PageHeader />
-      <StatsBar />
+      <StatsBar prices={prices} priceLoading={priceLoading} />
       <TimelineSlider activeSnapshot={activeSnapshot} onSelect={setActiveSnapshot} />
 
       <div className="grid grid-cols-1 lg:grid-cols-5 gap-6 mt-6">
@@ -292,6 +320,8 @@ function DashboardTab({
       <HoldingsSection
         selectedHolding={selectedHolding}
         setSelectedHolding={setSelectedHolding}
+        prices={prices}
+        priceLoading={priceLoading}
       />
 
       <ScreenedSection />
@@ -322,27 +352,51 @@ function PageHeader() {
   );
 }
 
-function StatsBar() {
+function StatsBar({ prices, priceLoading }: { prices: PriceMap; priceLoading: boolean }) {
+  const totalValue = useMemo(() => {
+    return (
+      HOLDINGS.reduce((sum, h) => {
+        const livePrice = prices[h.ticker]?.last ?? h.last;
+        return sum + h.shares * livePrice;
+      }, 0) + CASH_USD
+    );
+  }, [prices]);
+
+  const navPct = ((totalValue - SEED_USD) / SEED_USD) * 100;
+  const vsSpyPp = navPct - SPY_INCEPTION_PCT;
+  const cashWeight = (CASH_USD / totalValue) * 100;
+  const today = new Date().toISOString().slice(0, 10);
+
   return (
     <div id="dashboard-stats" className="bg-[#4a5c3f] text-white rounded-xl p-6 my-6 grid grid-cols-2 md:grid-cols-5 gap-6 scroll-mt-6">
       <div>
-        <div className="text-xs opacity-50 font-mono">2026-05-03</div>
-        <div className="text-3xl font-bold mt-1">2026-05-03</div>
+        <div className="text-xs opacity-50 font-mono">{today}</div>
+        <div className="text-3xl font-bold mt-1">{today}</div>
       </div>
       <div>
         <div className="text-xs opacity-60 tracking-widest font-mono">NET LIQUIDATION</div>
-        <div className="text-3xl font-bold tabular-nums mt-1">$10,780.31</div>
-        <div className="text-xs opacity-70 mt-1">+7.80% since inception</div>
+        <div className={`text-3xl font-bold tabular-nums mt-1 ${priceLoading ? "opacity-60" : ""}`}>
+          ${totalValue.toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+        </div>
+        <div className="text-xs opacity-70 mt-1">
+          {navPct >= 0 ? "+" : ""}
+          {navPct.toFixed(2)}% since inception
+        </div>
       </div>
       <div>
         <div className="text-xs opacity-60 tracking-widest font-mono">VS SPY</div>
-        <div className="text-3xl font-bold text-emerald-300 mt-1">+6.32pp</div>
-        <div className="text-xs opacity-70 mt-1">SPY +1.48%</div>
+        <div className={`text-3xl font-bold mt-1 ${vsSpyPp >= 0 ? "text-emerald-300" : "text-red-300"}`}>
+          {vsSpyPp >= 0 ? "+" : ""}
+          {vsSpyPp.toFixed(2)}pp
+        </div>
+        <div className="text-xs opacity-70 mt-1">SPY +{SPY_INCEPTION_PCT.toFixed(2)}%</div>
       </div>
       <div>
         <div className="text-xs opacity-60 tracking-widest font-mono">HOLDINGS</div>
-        <div className="text-3xl font-bold mt-1">7</div>
-        <div className="text-xs opacity-70 mt-1">cash $599 · 5.6%</div>
+        <div className="text-3xl font-bold mt-1">{HOLDINGS.length}</div>
+        <div className="text-xs opacity-70 mt-1">
+          cash ${CASH_USD} · {cashWeight.toFixed(1)}%
+        </div>
       </div>
       <div>
         <div className="text-xs opacity-60 tracking-widest font-mono">WEEKS ALIVE</div>
@@ -618,16 +672,25 @@ function RecommendedActions() {
 function HoldingsSection({
   selectedHolding,
   setSelectedHolding,
+  prices,
+  priceLoading,
 }: {
   selectedHolding: string | null;
   setSelectedHolding: (t: string | null) => void;
+  prices: PriceMap;
+  priceLoading: boolean;
 }) {
   return (
     <section id="dashboard-holdings" className="mt-12 scroll-mt-6">
       <p className="font-mono text-xs text-gray-400 tracking-widest">
         HOLDINGS · CLICK ANY ROW FOR THE THESIS
       </p>
-      <h2 className="text-2xl font-bold mt-1 mb-4">Brokerage view</h2>
+      <h2 className="text-2xl font-bold mt-1 mb-4 flex items-center">
+        Brokerage view
+        <span className="ml-2 text-xs bg-emerald-100 text-emerald-700 px-2 py-0.5 rounded-full font-mono">
+          ● Live
+        </span>
+      </h2>
 
       <div className="grid grid-cols-1 lg:grid-cols-5 gap-6">
         <div className={selectedHolding ? "lg:col-span-3" : "lg:col-span-5"}>
@@ -636,6 +699,8 @@ function HoldingsSection({
             onSelect={(t) =>
               setSelectedHolding(selectedHolding === t ? null : t)
             }
+            prices={prices}
+            priceLoading={priceLoading}
           />
         </div>
         {selectedHolding && (
@@ -654,9 +719,13 @@ function HoldingsSection({
 function HoldingsTable({
   selectedHolding,
   onSelect,
+  prices,
+  priceLoading,
 }: {
   selectedHolding: string | null;
   onSelect: (t: string) => void;
+  prices: PriceMap;
+  priceLoading: boolean;
 }) {
   return (
     <div className="bg-white border border-[#E0D9C8] rounded-xl overflow-hidden">
@@ -677,6 +746,13 @@ function HoldingsTable({
           <tbody>
             {HOLDINGS.map((h) => {
               const selected = selectedHolding === h.ticker;
+              const live = prices[h.ticker];
+              const liveLast = live?.last ?? null;
+              const livePosition = liveLast != null ? h.shares * liveLast : h.position;
+              const pl = livePosition - h.cost;
+              const plPct = (pl / h.cost) * 100;
+              const isPositive = pl >= 0;
+              const changeNum = live?.change != null ? parseFloat(live.change) : null;
               return (
                 <tr
                   key={h.ticker}
@@ -698,8 +774,29 @@ function HoldingsTable({
                   </td>
                   <td className="px-4 py-3 text-right font-mono tabular-nums">{h.shares}</td>
                   <td className="px-4 py-3 text-right font-mono tabular-nums">{fmtInt(h.cost)}</td>
-                  <td className="px-4 py-3 text-right font-mono tabular-nums">{fmtCurrency(h.last)}</td>
-                  <td className="px-4 py-3 text-right font-mono tabular-nums">{fmtInt(h.position)}</td>
+                  <td className="px-4 py-3 text-right">
+                    {priceLoading ? (
+                      <span className="font-mono text-sm text-gray-400 animate-pulse">…</span>
+                    ) : (
+                      <div>
+                        <span className="font-mono text-sm tabular-nums">
+                          ${(liveLast ?? h.last).toFixed(2)}
+                        </span>
+                        {changeNum != null && (
+                          <span
+                            className={`block text-xs font-mono tabular-nums ${
+                              changeNum >= 0 ? "text-emerald-600" : "text-red-500"
+                            }`}
+                          >
+                            {changeNum >= 0 ? "▲" : "▼"} {Math.abs(changeNum).toFixed(2)}%
+                          </span>
+                        )}
+                      </div>
+                    )}
+                  </td>
+                  <td className="px-4 py-3 text-right font-mono tabular-nums">
+                    ${Math.round(livePosition).toLocaleString("en-US")}
+                  </td>
                   <td className="px-4 py-3">
                     <div className="flex items-center gap-2">
                       <div className="w-16 h-1.5 bg-[#E0D9C8] rounded-full overflow-hidden">
@@ -712,8 +809,21 @@ function HoldingsTable({
                     </div>
                   </td>
                   <td className="px-4 py-3 text-right">
-                    <div className="text-emerald-600 font-mono tabular-nums text-sm">▲ +$0</div>
-                    <div className="text-xs text-gray-400 font-mono tabular-nums">+0.0%</div>
+                    <div
+                      className={`font-mono tabular-nums text-sm ${
+                        isPositive ? "text-emerald-600" : "text-red-500"
+                      }`}
+                    >
+                      {isPositive ? "▲" : "▼"} ${Math.abs(Math.round(pl)).toLocaleString("en-US")}
+                    </div>
+                    <div
+                      className={`text-xs font-mono tabular-nums ${
+                        isPositive ? "text-emerald-600/70" : "text-red-500/70"
+                      }`}
+                    >
+                      {isPositive ? "+" : ""}
+                      {plPct.toFixed(2)}%
+                    </div>
                   </td>
                 </tr>
               );
