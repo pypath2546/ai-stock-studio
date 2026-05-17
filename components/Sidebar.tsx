@@ -78,7 +78,7 @@ export default function Sidebar() {
 
       {(() => {
         const dynamicOutline =
-          (pathname === "/news" || pathname === "/diary") && newsOutline
+          (pathname === "/news" || pathname === "/diary" || pathname === "/ai") && newsOutline
             ? newsOutline
             : null;
         const staticOutline = pathname ? PAGE_OUTLINES[pathname] : undefined;
