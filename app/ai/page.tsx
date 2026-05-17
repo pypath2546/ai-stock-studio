@@ -145,8 +145,7 @@ export default function AIPage() {
               AI STOCK STUDIO
             </p>
             <h1 className="text-4xl font-bold text-gray-900">
-              Yim has an{" "}
-              <span className="italic text-amber-600">AI Studio.</span>
+              AI <span className="italic text-amber-600">Studio.</span>
             </h1>
             <p className="text-sm text-gray-500 mt-2 font-mono">
               {AGENTS.length} AGENTS · {PIPELINE_GROUPS.length} PIPELINES · 1 ORCHESTRATOR · {errCount} ERRORS
