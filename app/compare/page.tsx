@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback, Suspense } from "react";
 import { useSearchParams } from "next/navigation";
 import Link from "next/link";
 import { api, CompareItem } from "@/lib/api";
@@ -23,7 +23,7 @@ function TrendCell({ trend }: { trend?: string }) {
   return <td className={`py-3 px-4 text-right ${color}`}>{trend}</td>;
 }
 
-export default function ComparePage() {
+function ComparePageInner() {
   const searchParams = useSearchParams();
   const [base, setBase] = useState(searchParams.get("base") ?? "AAPL");
   const [others, setOthers] = useState("MSFT,GOOGL");
@@ -131,5 +131,13 @@ export default function ComparePage() {
         </div>
       )}
     </div>
+  );
+}
+
+export default function ComparePage() {
+  return (
+    <Suspense>
+      <ComparePageInner />
+    </Suspense>
   );
 }
