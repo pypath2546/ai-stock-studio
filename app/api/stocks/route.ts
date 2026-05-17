@@ -24,7 +24,8 @@ export async function GET() {
         const data = await res.json();
         const meta = data?.chart?.result?.[0]?.meta;
         const last: number | null = meta?.regularMarketPrice ?? null;
-        const prevClose: number | null = meta?.previousClose ?? null;
+        const prevClose: number | null =
+          meta?.previousClose ?? meta?.chartPreviousClose ?? null;
         return {
           ticker,
           last,
