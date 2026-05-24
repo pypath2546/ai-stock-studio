@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import { Play, TrendingUp } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useNewsOutline } from "@/lib/news-outline-context";
+import { TRADING_TICKERS as TICKERS, PORTFOLIO_HOLDINGS } from "@/lib/tickers";
 
 type AgentStatus = "idle" | "running" | "done";
 
@@ -64,7 +65,6 @@ interface TopPick {
   reason: string;
 }
 
-const TICKERS = ['GOOGL', 'AVGO', 'AMZN', 'UBER', 'CRWD', 'RBRK', 'NVDA', 'META', 'MSFT', 'TSLA', 'PLTR'] as const;
 
 function generateCommentary(result: AnalysisResult): string {
   const { ticker, recommendation, confidence, technical, news, currentPrice } = result;
@@ -119,11 +119,11 @@ function generateCommentary(result: AnalysisResult): string {
 }
 
 const pipelineColors: Record<string, PipelineColors> = {
-  Orchestrator:   { dot: "bg-amber-400",  border: "border-[#F5C518]", leftColor: "#fbbf24", bg: "bg-[#2A1A00]", glow: "shadow-[0_0_24px_-4px_#F5C518]" },
-  Technical:      { dot: "bg-blue-400",   border: "border-[#F5C518]", leftColor: "#60a5fa", bg: "bg-[#001A2A]", glow: "shadow-[0_0_24px_-4px_#F5C518]" },
-  News:           { dot: "bg-green-400",  border: "border-[#F5C518]", leftColor: "#4ade80", bg: "bg-[#001A0A]", glow: "shadow-[0_0_24px_-4px_#F5C518]" },
-  "Quality Gate": { dot: "bg-red-400",    border: "border-[#F5C518]", leftColor: "#f87171", bg: "bg-[#1A0000]", glow: "shadow-[0_0_24px_-4px_#F5C518]" },
-  Report:         { dot: "bg-purple-400", border: "border-[#F5C518]", leftColor: "#c084fc", bg: "bg-[#1A002A]", glow: "shadow-[0_0_24px_-4px_#F5C518]" },
+  Orchestrator:   { dot: "bg-amber-400",  border: "border-gold", leftColor: "#fbbf24", bg: "bg-[#2A1A00]", glow: "shadow-[0_0_24px_-4px_var(--color-gold)]" },
+  Technical:      { dot: "bg-blue-400",   border: "border-gold", leftColor: "#60a5fa", bg: "bg-[#001A2A]", glow: "shadow-[0_0_24px_-4px_var(--color-gold)]" },
+  News:           { dot: "bg-green-400",  border: "border-gold", leftColor: "#4ade80", bg: "bg-[#001A0A]", glow: "shadow-[0_0_24px_-4px_var(--color-gold)]" },
+  "Quality Gate": { dot: "bg-red-400",    border: "border-gold", leftColor: "#f87171", bg: "bg-[#1A0000]", glow: "shadow-[0_0_24px_-4px_var(--color-gold)]" },
+  Report:         { dot: "bg-purple-400", border: "border-gold", leftColor: "#c084fc", bg: "bg-[#1A002A]", glow: "shadow-[0_0_24px_-4px_var(--color-gold)]" },
 };
 
 const AGENTS: Agent[] = [
@@ -158,22 +158,7 @@ const AI_OUTLINE = [
   { href: "#ai-report",       label: "Report" },
 ];
 
-interface WatchlistStock {
-  ticker: string;
-  company: string;
-  shares: number;
-  cost: number;
-}
-
-const WATCHLIST_STOCKS: WatchlistStock[] = [
-  { ticker: "GOOGL", company: "Alphabet",     shares: 7,  cost: 2392 },
-  { ticker: "AVGO",  company: "Broadcom",     shares: 4,  cost: 1626 },
-  { ticker: "AMZN",  company: "Amazon",       shares: 6,  cost: 1503 },
-  { ticker: "UBER",  company: "Uber",         shares: 18, cost: 1388 },
-  { ticker: "CRWD",  company: "CrowdStrike",  shares: 2,  cost: 848  },
-  { ticker: "RBRK",  company: "Rubrik",       shares: 16, cost: 837  },
-  { ticker: "SOI.PA",company: "Soitec",       shares: 7,  cost: 806  },
-];
+const WATCHLIST_STOCKS = PORTFOLIO_HOLDINGS;
 
 export default function AIPage() {
   const [agentStatuses, setAgentStatuses] = useState<Record<string, AgentStatus>>({});
@@ -252,14 +237,13 @@ export default function AIPage() {
     setAgentStatuses(prev => ({ ...prev, KIRA: 'running' }));
     try {
       const screenRes = await fetch('/api/agents/screener').then(r => r.json());
-      console.log('Screener response:', screenRes);
       setAnalysisResult(prev =>
         prev
           ? { ...prev, topPicks: screenRes.topPicks, universeScanned: screenRes.universe }
           : prev,
       );
-    } catch (err) {
-      console.error('Screener fetch failed:', err);
+    } catch {
+      /* screener is supplementary — fail silently */
     }
     setAgentStatuses(prev => ({ ...prev, KIRA: 'done' }));
     setIsScreening(false);
@@ -318,7 +302,7 @@ export default function AIPage() {
             <button
               onClick={handleRunAnalysis}
               disabled={isAnalyzing}
-              className="flex items-center gap-2 px-6 py-3 bg-[#F5C518] text-black rounded-xl hover:bg-[#F0B800] disabled:opacity-50 transition-all font-medium"
+              className="flex items-center gap-2 px-6 py-3 bg-gold text-black rounded-xl hover:bg-[#F0B800] disabled:opacity-50 transition-all font-medium"
             >
               <Play className="w-4 h-4" />
               {isAnalyzing ? "Running…" : "Run Analysis"}
@@ -337,7 +321,7 @@ export default function AIPage() {
               onClick={() => setActivePipeline(p)}
               className={`flex items-center gap-1.5 px-4 py-1.5 rounded-full text-sm font-medium transition-all ${
                 activePipeline === p
-                  ? "bg-[#F5C518] text-black"
+                  ? "bg-gold text-black"
                   : "border border-[#2A2A2A] text-gray-300 hover:bg-[#1A1A1A]"
               }`}
             >
@@ -362,7 +346,7 @@ export default function AIPage() {
             disabled={isAnalyzing}
             className={`px-3 py-1 rounded-full text-xs font-mono font-bold transition-all disabled:opacity-50 disabled:cursor-not-allowed ${
               selectedTicker === t
-                ? "bg-[#F5C518] text-black"
+                ? "bg-gold text-black"
                 : "border border-[#2A2A2A] text-gray-300 hover:bg-[#1F1F00]"
             }`}
           >
@@ -424,9 +408,9 @@ export default function AIPage() {
 
       {/* Screening progress */}
       {isScreening && (
-        <div className="mt-4 bg-[#1A1A00] border border-[#F5C518]/20 rounded-xl p-4 flex items-center gap-3">
-          <span className="w-2 h-2 bg-[#F5C518] rounded-full animate-pulse" />
-          <p className="text-[#F5C518] font-mono text-sm">
+        <div className="mt-4 bg-[#1A1A00] border border-gold/20 rounded-xl p-4 flex items-center gap-3">
+          <span className="w-2 h-2 bg-gold rounded-full animate-pulse" />
+          <p className="text-gold font-mono text-sm">
             Nick is scanning 50 stocks for entry opportunities...
           </p>
         </div>
@@ -463,7 +447,7 @@ export default function AIPage() {
               <p
                 className={`text-3xl font-bold mt-2 ${
                   analysisResult.recommendation === "BUY"
-                    ? "text-[#F5C518]"
+                    ? "text-gold"
                     : analysisResult.recommendation === "SELL"
                     ? "text-red-500"
                     : analysisResult.recommendation === "WATCH"
@@ -482,7 +466,7 @@ export default function AIPage() {
               <p className="font-mono text-xs text-gray-400 tracking-widest">QUALITY GATE</p>
               <p
                 className={`text-3xl font-bold mt-2 ${
-                  analysisResult.quality?.approved ? "text-[#F5C518]" : "text-red-500"
+                  analysisResult.quality?.approved ? "text-gold" : "text-red-500"
                 }`}
               >
                 {analysisResult.quality?.approved ? "PASS" : "FAIL"}
@@ -569,7 +553,7 @@ export default function AIPage() {
                     Best Entry Opportunities Right Now
                   </h3>
                 </div>
-                <span className="bg-[#1A1A00] text-[#F5C518] text-xs font-mono px-3 py-1 rounded-full border border-[#F5C518]/30">
+                <span className="bg-[#1A1A00] text-gold text-xs font-mono px-3 py-1 rounded-full border border-gold/30">
                   ● LIVE SCAN
                 </span>
               </div>
@@ -578,10 +562,10 @@ export default function AIPage() {
                 {analysisResult.topPicks.map((pick, i) => (
                   <div
                     key={pick.ticker}
-                    className="flex flex-wrap items-center justify-between gap-4 bg-[#1A1A1A] border border-[#2A2A2A] rounded-xl p-4 hover:border-[#F5C518]/30 transition-colors"
+                    className="flex flex-wrap items-center justify-between gap-4 bg-[#1A1A1A] border border-[#2A2A2A] rounded-xl p-4 hover:border-gold/30 transition-colors"
                   >
                     <div className="flex items-center gap-4">
-                      <span className="text-[#F5C518] font-mono font-bold text-lg w-6">
+                      <span className="text-gold font-mono font-bold text-lg w-6">
                         #{i + 1}
                       </span>
                       <div>
@@ -622,7 +606,7 @@ export default function AIPage() {
                         <p
                           className={`font-mono font-bold text-sm ${
                             pick.signal === 'BUY'
-                              ? 'text-[#F5C518]'
+                              ? 'text-gold'
                               : pick.signal === 'WATCH'
                                 ? 'text-blue-400'
                                 : 'text-gray-300'
@@ -637,13 +621,13 @@ export default function AIPage() {
                       </div>
                       <div className="text-center">
                         <p className="text-gray-400 font-mono text-xs">SCORE</p>
-                        <p className="text-[#F5C518] font-mono font-bold text-sm">{pick.score}/100</p>
+                        <p className="text-gold font-mono font-bold text-sm">{pick.score}/100</p>
                       </div>
                     </div>
 
                     <button
                       onClick={() => router.push('/trading')}
-                      className="bg-[#1A1A00] border border-[#F5C518]/50 text-[#F5C518] text-xs font-mono px-3 py-2 rounded-lg hover:bg-[#F5C518] hover:text-black transition-all"
+                      className="bg-[#1A1A00] border border-gold/50 text-gold text-xs font-mono px-3 py-2 rounded-lg hover:bg-gold hover:text-black transition-all"
                     >
                       + Trade
                     </button>
@@ -731,7 +715,7 @@ export default function AIPage() {
 
           <a
             href="/diary"
-            className="block w-full text-center py-3 mt-4 border border-[#F5C518] text-[#F5C518] rounded-xl text-sm font-medium hover:bg-[#F5C518] hover:text-white transition-colors"
+            className="block w-full text-center py-3 mt-4 border border-gold text-gold rounded-xl text-sm font-medium hover:bg-gold hover:text-white transition-colors"
           >
             View Full Portfolio →
           </a>

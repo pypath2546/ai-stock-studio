@@ -6,9 +6,7 @@ import {
   Home,
   BookOpen,
   Newspaper,
-  FileText,
   Sparkles,
-  Users,
   ChevronsLeft,
   AtSign,
   Globe,
@@ -23,10 +21,8 @@ const NAV_ITEMS = [
   { href: "/diary", label: "Diary", icon: BookOpen },
   { href: "/trading", label: "Trading", icon: TrendingUp },
   { href: "/news", label: "News", icon: Newspaper },
-  { href: "/substack", label: "Substack", icon: FileText },
   { href: "/ai", label: "AI", icon: Sparkles },
   { href: "/knowledge", label: "Knowledge", icon: Brain },
-  { href: "/team", label: "Team", icon: Users },
 ] as const;
 
 const PAGE_OUTLINES: Record<string, { href: string; label: string }[]> = {};
@@ -38,7 +34,7 @@ export default function Sidebar() {
   return (
     <aside className="w-64 flex-shrink-0 h-screen sticky top-0 border-r border-[#2A2A2A] bg-[#0A0A0A] flex flex-col">
       <div className="px-4 py-5 flex items-center gap-2">
-        <div className="h-8 w-8 rounded-full bg-[#F5C518] flex-shrink-0 flex items-center justify-center">
+        <div className="h-8 w-8 rounded-full bg-gold flex-shrink-0 flex items-center justify-center">
           <Sparkles className="h-4 w-4 text-black" />
         </div>
         <span className="font-bold text-lg text-white leading-none tracking-tight">
@@ -67,7 +63,7 @@ export default function Sidebar() {
                   href={href}
                   className={
                     active
-                      ? "flex items-center gap-3 px-3 py-2 rounded-lg bg-[#F5C518] text-black text-sm font-medium"
+                      ? "flex items-center gap-3 px-3 py-2 rounded-lg bg-gold text-black text-sm font-medium"
                       : "flex items-center gap-3 px-3 py-2 rounded-lg text-gray-300 hover:bg-[#1F1F00] hover:text-white text-sm transition-colors"
                   }
                 >
@@ -112,7 +108,7 @@ export default function Sidebar() {
       <div className="mt-auto px-4 pb-5 pt-4 space-y-3">
         <button
           type="button"
-          className="w-full bg-[#F5C518] hover:bg-[#F0B800] text-black text-sm font-semibold rounded-full py-2 transition-colors"
+          className="w-full bg-gold hover:bg-[#F0B800] text-black text-sm font-semibold rounded-full py-2 transition-colors"
         >
           Join membership
         </button>

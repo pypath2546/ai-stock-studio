@@ -1,13 +1,12 @@
 import { Redis } from '@upstash/redis';
 import { NextResponse } from 'next/server';
 import Anthropic from '@anthropic-ai/sdk';
+import { KB_TICKERS as TICKERS } from '@/lib/tickers';
 
 const kv = new Redis({
   url: process.env.UPSTASH_REDIS_REST_URL!,
   token: process.env.UPSTASH_REDIS_REST_TOKEN!,
 });
-
-const TICKERS = ['NVDA','GOOGL','AVGO','AMZN','UBER','CRWD','RBRK','MSFT','META','TSLA','PLTR','AAPL','AMD','INTC','TSM','ASML','MU'];
 
 async function summarize(text: string): Promise<string> {
   if (!process.env.ANTHROPIC_API_KEY) {

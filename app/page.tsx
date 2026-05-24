@@ -1,26 +1,12 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { BookOpen, Newspaper, Sparkles, Users } from "lucide-react";
-
-const CASH_USD = 599;
-
-const TOP_HOLDINGS = [
-  { ticker: "GOOGL", company: "Alphabet Inc.",    shares: 7,  cost: 2392, weight: 23.9 },
-  { ticker: "AVGO",  company: "Broadcom Inc.",    shares: 4,  cost: 1626, weight: 16.3 },
-  { ticker: "AMZN",  company: "Amazon.com Inc.",  shares: 6,  cost: 1503, weight: 15.0 },
-  { ticker: "UBER",  company: "Uber Technologies",shares: 18, cost: 1388, weight: 13.9 },
-];
-
-const ALL_HOLDINGS = [
-  { ticker: "GOOGL", shares: 7,  cost: 2392 },
-  { ticker: "AVGO",  shares: 4,  cost: 1626 },
-  { ticker: "AMZN",  shares: 6,  cost: 1503 },
-  { ticker: "UBER",  shares: 18, cost: 1388 },
-  { ticker: "CRWD",  shares: 2,  cost: 848  },
-  { ticker: "RBRK",  shares: 16, cost: 837  },
-  { ticker: "SOI.PA",shares: 7,  cost: 806  },
-];
+import { BookOpen, Newspaper, Sparkles, TrendingUp } from "lucide-react";
+import {
+  PORTFOLIO_CASH_USD as CASH_USD,
+  PORTFOLIO_HOLDINGS as ALL_HOLDINGS,
+  TOP_HOLDINGS,
+} from "@/lib/tickers";
 
 interface PriceRow {
   last: number | null;
@@ -92,7 +78,7 @@ export default function Home() {
 
       {/* SECTION 2: Stats Bar */}
       <section className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-10">
-        <a href="/trading" className="bg-[#F5C518] text-black rounded-2xl p-5 hover:shadow-md hover:-translate-y-0.5 transition-all block">
+        <a href="/trading" className="bg-gold text-black rounded-2xl p-5 hover:shadow-md hover:-translate-y-0.5 transition-all block">
           <p className="font-mono text-xs opacity-60 tracking-widest">PORTFOLIO VALUE</p>
           {paperValue == null ? (
             <div className="h-9 w-28 bg-white/20 rounded animate-pulse mt-1" />
@@ -131,13 +117,13 @@ export default function Home() {
       <section className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-10">
         <a
           href="/diary"
-          className="group bg-[#111111] border border-[#2A2A2A] rounded-2xl p-6 hover:border-[#F5C518]/50 hover:shadow-md hover:-translate-y-1 transition-all"
+          className="group bg-[#111111] border border-[#2A2A2A] rounded-2xl p-6 hover:border-gold/50 hover:shadow-md hover:-translate-y-1 transition-all"
         >
           <div className="flex items-start justify-between mb-4">
-            <div className="w-12 h-12 bg-[#F5C518] rounded-xl flex items-center justify-center">
+            <div className="w-12 h-12 bg-gold rounded-xl flex items-center justify-center">
               <BookOpen className="w-6 h-6 text-black" />
             </div>
-            <span className="text-xs font-mono text-gray-400 group-hover:text-[#F5C518] transition-colors">
+            <span className="text-xs font-mono text-gray-400 group-hover:text-gold transition-colors">
               View →
             </span>
           </div>
@@ -153,7 +139,7 @@ export default function Home() {
 
         <a
           href="/news"
-          className="group bg-[#111111] border border-[#2A2A2A] rounded-2xl p-6 hover:border-[#F5C518]/50 hover:shadow-md hover:-translate-y-1 transition-all"
+          className="group bg-[#111111] border border-[#2A2A2A] rounded-2xl p-6 hover:border-gold/50 hover:shadow-md hover:-translate-y-1 transition-all"
         >
           <div className="flex items-start justify-between mb-4">
             <div className="w-12 h-12 bg-blue-600 rounded-xl flex items-center justify-center">
@@ -175,7 +161,7 @@ export default function Home() {
 
         <a
           href="/ai"
-          className="group bg-[#111111] border border-[#2A2A2A] rounded-2xl p-6 hover:border-[#F5C518]/50 hover:shadow-md hover:-translate-y-1 transition-all"
+          className="group bg-[#111111] border border-[#2A2A2A] rounded-2xl p-6 hover:border-gold/50 hover:shadow-md hover:-translate-y-1 transition-all"
         >
           <div className="flex items-start justify-between mb-4">
             <div className="w-12 h-12 bg-amber-500 rounded-xl flex items-center justify-center">
@@ -196,24 +182,24 @@ export default function Home() {
         </a>
 
         <a
-          href="/team"
-          className="group bg-[#111111] border border-[#2A2A2A] rounded-2xl p-6 hover:border-[#F5C518]/50 hover:shadow-md hover:-translate-y-1 transition-all"
+          href="/trading"
+          className="group bg-[#111111] border border-[#2A2A2A] rounded-2xl p-6 hover:border-gold/50 hover:shadow-md hover:-translate-y-1 transition-all"
         >
           <div className="flex items-start justify-between mb-4">
-            <div className="w-12 h-12 bg-purple-600 rounded-xl flex items-center justify-center">
-              <Users className="w-6 h-6 text-white" />
+            <div className="w-12 h-12 bg-emerald-600 rounded-xl flex items-center justify-center">
+              <TrendingUp className="w-6 h-6 text-white" />
             </div>
-            <span className="text-xs font-mono text-gray-400 group-hover:text-purple-600 transition-colors">
+            <span className="text-xs font-mono text-gray-400 group-hover:text-emerald-400 transition-colors">
               View →
             </span>
           </div>
-          <h2 className="text-xl font-bold mb-1">Team</h2>
+          <h2 className="text-xl font-bold mb-1">Paper Trading</h2>
           <p className="text-sm text-gray-400 mb-4">
-            Meet the people and agents behind AI Studio. Built by Yim, powered by Claude.
+            $10K simulated portfolio with live prices and a Nick&apos;s Entry Scanner across 11 names.
           </p>
           <div className="flex gap-2 flex-wrap">
-            <span className="bg-purple-100 text-purple-700 text-xs font-mono px-2 py-1 rounded-full">1 Human</span>
-            <span className="bg-[#1F1F00] text-gray-300 text-xs font-mono px-2 py-1 rounded-full">11 Agents</span>
+            <span className="bg-emerald-100 text-emerald-700 text-xs font-mono px-2 py-1 rounded-full">● Live Scan</span>
+            <span className="bg-[#1F1F00] text-gray-300 text-xs font-mono px-2 py-1 rounded-full">$0 risk</span>
           </div>
         </a>
       </section>
@@ -225,7 +211,7 @@ export default function Home() {
             <p className="font-mono text-xs text-gray-400 tracking-widest">PORTFOLIO SNAPSHOT</p>
             <h3 className="text-lg font-bold mt-1">Top Holdings</h3>
           </div>
-          <a href="/diary" className="text-sm text-[#F5C518] font-medium hover:underline">
+          <a href="/diary" className="text-sm text-gold font-medium hover:underline">
             View all →
           </a>
         </div>
@@ -259,12 +245,12 @@ export default function Home() {
                     <div className="flex-1 flex items-center gap-2">
                       <div className="flex-1 h-1.5 bg-[#2A2A2A] rounded-full overflow-hidden">
                         <div
-                          className="h-full bg-[#F5C518] rounded-full"
-                          style={{ width: `${Math.min(h.weight * 4, 100)}%` }}
+                          className="h-full bg-gold rounded-full"
+                          style={{ width: `${Math.min((h.weight ?? 0) * 4, 100)}%` }}
                         />
                       </div>
                       <span className="font-mono text-xs text-gray-400 tabular-nums w-10 text-right">
-                        {h.weight}%
+                        {h.weight ?? 0}%
                       </span>
                     </div>
 

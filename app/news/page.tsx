@@ -61,7 +61,7 @@ export default function NewsPage() {
       const url = activeCategory === 'all'
         ? '/api/news'
         : `/api/news?category=${activeCategory}`;
-      const res = await fetch(url, { cache: 'no-store' });
+      const res = await fetch(url);
       const json = await res.json();
       setData(json);
     } catch {
@@ -115,7 +115,7 @@ export default function NewsPage() {
               onClick={() => setActiveCategory(tab.id)}
               className={`flex items-center gap-1.5 px-4 py-1.5 rounded-full text-sm font-medium transition-all ${
                 isActive
-                  ? 'bg-[#F5C518] text-black'
+                  ? 'bg-gold text-black'
                   : 'border border-[#2A2A2A] text-gray-300 hover:bg-[#0A0A0A]'
               }`}
             >
@@ -149,7 +149,7 @@ export default function NewsPage() {
           <p className="text-gray-400 text-lg">ไม่สามารถโหลดข่าวได้</p>
           <button
             onClick={fetchNews}
-            className="mt-4 px-6 py-2 bg-[#F5C518] text-black rounded-lg hover:bg-[#F0B800]"
+            className="mt-4 px-6 py-2 bg-gold text-black rounded-lg hover:bg-[#F0B800]"
           >
             ลองใหม่
           </button>
@@ -164,7 +164,7 @@ export default function NewsPage() {
 
               {/* Date marker */}
               <div className="flex items-center gap-3 mb-6 -ml-[41px]">
-                <div className="w-4 h-4 rounded-full bg-[#F5C518] border-4 border-[#F2EDE3] shrink-0" />
+                <div className="w-4 h-4 rounded-full bg-gold border-4 border-[#F2EDE3] shrink-0" />
                 <div>
                   <h2 className="text-3xl font-bold text-white">
                     {toThaiDate(date)}
@@ -183,7 +183,7 @@ export default function NewsPage() {
                   return (
                     <article
                       key={id}
-                      className="bg-[#111111] rounded-2xl border border-[#2A2A2A] p-4 hover:bg-[#1A1A00] hover:border-[#F5C518]/30 hover:-translate-y-0.5 transition-all flex gap-4 cursor-pointer"
+                      className="bg-[#111111] rounded-2xl border border-[#2A2A2A] p-4 hover:bg-[#1A1A00] hover:border-gold/30 hover:-translate-y-0.5 transition-all flex gap-4 cursor-pointer"
                       onClick={() => setExpandedId(expanded ? null : id)}
                     >
                       {/* Image or Logo */}
@@ -222,7 +222,7 @@ export default function NewsPage() {
                           onClick={e => e.stopPropagation()}
                           className="group block"
                         >
-                          <h3 className="font-semibold text-base text-white group-hover:text-[#F5C518] line-clamp-2 leading-snug">
+                          <h3 className="font-semibold text-base text-white group-hover:text-gold line-clamp-2 leading-snug">
                             {article.title}
                             <ExternalLink className="inline ml-1 w-3 h-3 opacity-40 align-baseline" />
                           </h3>

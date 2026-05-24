@@ -142,7 +142,7 @@ export default function KnowledgePage() {
               onClick={() => setTab(t)}
               className={`flex items-center gap-1.5 px-4 py-1.5 rounded-full text-sm font-medium transition-all ${
                 tab === t
-                  ? 'bg-[#F5C518] text-black'
+                  ? 'bg-gold text-black'
                   : 'border border-[#2A2A2A] text-gray-300 hover:bg-[#1A1A1A]'
               }`}
             >
@@ -161,18 +161,18 @@ export default function KnowledgePage() {
               value={ytUrl}
               onChange={e => setYtUrl(e.target.value)}
               placeholder="https://youtube.com/watch?v=..."
-              className="w-full border border-[#2A2A2A] rounded-xl px-4 py-3 bg-[#111111] text-sm focus:outline-none focus:border-[#F5C518]"
+              className="w-full border border-[#2A2A2A] rounded-xl px-4 py-3 bg-[#111111] text-sm focus:outline-none focus:border-gold"
             />
             <input
               value={ytTitle}
               onChange={e => setYtTitle(e.target.value)}
               placeholder="Title (optional)"
-              className="w-full border border-[#2A2A2A] rounded-xl px-4 py-3 bg-[#111111] text-sm focus:outline-none focus:border-[#F5C518]"
+              className="w-full border border-[#2A2A2A] rounded-xl px-4 py-3 bg-[#111111] text-sm focus:outline-none focus:border-gold"
             />
             <button
               onClick={() => addKnowledge('youtube')}
               disabled={isLoading || !ytUrl}
-              className="flex items-center gap-2 px-5 py-2.5 bg-[#F5C518] text-black rounded-xl hover:bg-[#F0B800] disabled:opacity-50 transition-all text-sm font-medium"
+              className="flex items-center gap-2 px-5 py-2.5 bg-gold text-black rounded-xl hover:bg-[#F0B800] disabled:opacity-50 transition-all text-sm font-medium"
             >
               <Video className="w-4 h-4" />
               Extract &amp; Add to KB
@@ -187,12 +187,12 @@ export default function KnowledgePage() {
               value={webUrl}
               onChange={e => setWebUrl(e.target.value)}
               placeholder="https://techcrunch.com/..."
-              className="w-full border border-[#2A2A2A] rounded-xl px-4 py-3 bg-[#111111] text-sm focus:outline-none focus:border-[#F5C518]"
+              className="w-full border border-[#2A2A2A] rounded-xl px-4 py-3 bg-[#111111] text-sm focus:outline-none focus:border-gold"
             />
             <button
               onClick={() => addKnowledge('web')}
               disabled={isLoading || !webUrl}
-              className="flex items-center gap-2 px-5 py-2.5 bg-[#F5C518] text-black rounded-xl hover:bg-[#F0B800] disabled:opacity-50 transition-all text-sm font-medium"
+              className="flex items-center gap-2 px-5 py-2.5 bg-gold text-black rounded-xl hover:bg-[#F0B800] disabled:opacity-50 transition-all text-sm font-medium"
             >
               <Globe className="w-4 h-4" />
               Scrape &amp; Add to KB
@@ -207,19 +207,19 @@ export default function KnowledgePage() {
               value={manualTitle}
               onChange={e => setManualTitle(e.target.value)}
               placeholder="Title"
-              className="w-full border border-[#2A2A2A] rounded-xl px-4 py-3 bg-[#111111] text-sm focus:outline-none focus:border-[#F5C518]"
+              className="w-full border border-[#2A2A2A] rounded-xl px-4 py-3 bg-[#111111] text-sm focus:outline-none focus:border-gold"
             />
             <textarea
               value={manualText}
               onChange={e => setManualText(e.target.value)}
               placeholder="Paste article text, earnings call transcript, research notes..."
               rows={6}
-              className="w-full border border-[#2A2A2A] rounded-xl px-4 py-3 bg-[#111111] text-sm focus:outline-none focus:border-[#F5C518] resize-none"
+              className="w-full border border-[#2A2A2A] rounded-xl px-4 py-3 bg-[#111111] text-sm focus:outline-none focus:border-gold resize-none"
             />
             <button
               onClick={() => addKnowledge('manual')}
               disabled={isLoading || !manualText}
-              className="flex items-center gap-2 px-5 py-2.5 bg-[#F5C518] text-black rounded-xl hover:bg-[#F0B800] disabled:opacity-50 transition-all text-sm font-medium"
+              className="flex items-center gap-2 px-5 py-2.5 bg-gold text-black rounded-xl hover:bg-[#F0B800] disabled:opacity-50 transition-all text-sm font-medium"
             >
               <FileText className="w-4 h-4" />
               Add to KB
@@ -275,7 +275,7 @@ export default function KnowledgePage() {
           value={searchQuery}
           onChange={e => setSearchQuery(e.target.value)}
           placeholder="Search by ticker or keyword…"
-          className="w-full border border-[#2A2A2A] rounded-xl pl-11 pr-4 py-3 bg-[#111111] text-sm focus:outline-none focus:border-[#F5C518]"
+          className="w-full border border-[#2A2A2A] rounded-xl pl-11 pr-4 py-3 bg-[#111111] text-sm focus:outline-none focus:border-gold"
         />
       </div>
 

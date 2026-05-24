@@ -1,11 +1,5 @@
 import { NextResponse } from 'next/server';
-
-const UNIVERSE = [
-  'AAPL','MSFT','NVDA','GOOGL','AMZN',
-  'META','TSLA','AVGO','CRWD','PLTR',
-  'RBRK','UBER','AMD','ARM','NET',
-  'DDOG','SNOW','SMCI','ORCL','IBM',
-];
+import { SCREENER_UNIVERSE as UNIVERSE } from '@/lib/tickers';
 
 interface TechnicalResponse {
   ticker: string;
@@ -37,11 +31,9 @@ export async function GET(request: Request) {
 
   const results = await Promise.allSettled(
     UNIVERSE.map(async (ticker): Promise<Pick | null> => {
-      const controller = new AbortController();
-      const timeout = setTimeout(() => controller.abort(), 5000);
       try {
         const url = `${baseUrl}/api/agents/technical?ticker=${encodeURIComponent(ticker)}`;
-        const res = await fetch(url, { signal: controller.signal });
+        const res = await fetch(url, { signal: AbortSignal.timeout(5000) });
         const data: TechnicalResponse = await res.json();
         if (!res.ok || data.error) {
           console.log(`Screener: skipped ${ticker} (${data.error ?? `HTTP ${res.status}`})`);
@@ -89,8 +81,6 @@ export async function GET(request: Request) {
         const reason = err instanceof Error ? err.message : String(err);
         console.log(`Screener: failed ${ticker} (${reason})`);
         return null;
-      } finally {
-        clearTimeout(timeout);
       }
     }),
   );

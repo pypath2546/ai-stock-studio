@@ -1,8 +1,9 @@
 import { NextResponse } from "next/server";
+import { STOCKS_API_TICKERS } from "@/lib/tickers";
 
 export const revalidate = 300;
 
-const TICKERS = ["GOOGL", "AVGO", "AMZN", "UBER", "CRWD", "RBRK", "SOI.PA", "NVDA", "META", "MSFT", "TSLA", "PLTR"];
+const TICKERS = STOCKS_API_TICKERS;
 
 interface PriceData {
   ticker: string;

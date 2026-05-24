@@ -2,8 +2,7 @@
 
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { RotateCcw, Plus, Minus, X, ChevronDown, ChevronUp } from 'lucide-react';
-
-const STOCKS = ['GOOGL', 'AVGO', 'AMZN', 'UBER', 'CRWD', 'RBRK', 'NVDA', 'META', 'MSFT', 'TSLA', 'PLTR'] as const;
+import { TRADING_TICKERS as STOCKS } from '@/lib/tickers';
 
 interface PriceRow {
   ticker: string;
@@ -301,7 +300,7 @@ export default function TradingPage() {
                 <div className="w-24 shrink-0">
                   <p className="font-bold text-sm">{ticker}</p>
                   {holding && (
-                    <p className="text-[10px] font-mono text-[#F5C518]">
+                    <p className="text-[10px] font-mono text-gold">
                       {holding.shares} sh
                     </p>
                   )}
@@ -323,7 +322,7 @@ export default function TradingPage() {
                     type="button"
                     onClick={() => setModal({ kind: 'trade', action: 'BUY', ticker })}
                     disabled={!hasPrice}
-                    className="flex items-center gap-1 px-3 py-1.5 rounded-full bg-[#F5C518] text-black text-xs font-mono uppercase tracking-wider hover:bg-[#F0B800] disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
+                    className="flex items-center gap-1 px-3 py-1.5 rounded-full bg-gold text-black text-xs font-mono uppercase tracking-wider hover:bg-[#F0B800] disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
                   >
                     <Plus className="h-3 w-3" />
                     Buy
@@ -333,7 +332,7 @@ export default function TradingPage() {
                       type="button"
                       onClick={() => setModal({ kind: 'trade', action: 'SELL', ticker })}
                       disabled={!hasPrice}
-                      className="flex items-center gap-1 px-3 py-1.5 rounded-full bg-[#111111] border border-[#F5C518] text-[#F5C518] text-xs font-mono uppercase tracking-wider hover:bg-[#1F1F00] disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
+                      className="flex items-center gap-1 px-3 py-1.5 rounded-full bg-[#111111] border border-gold text-gold text-xs font-mono uppercase tracking-wider hover:bg-[#1F1F00] disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
                     >
                       <Minus className="h-3 w-3" />
                       Sell
@@ -406,7 +405,7 @@ export default function TradingPage() {
                             placeTrade('SELL', h.ticker, h.shares, live, 'Sell all').catch(() => {});
                           }}
                           disabled={live == null}
-                          className="px-3 py-1 rounded-full border border-[#F5C518] text-[#F5C518] text-[10px] font-mono uppercase tracking-wider hover:bg-[#1F1F00] disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
+                          className="px-3 py-1 rounded-full border border-gold text-gold text-[10px] font-mono uppercase tracking-wider hover:bg-[#1F1F00] disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
                         >
                           Sell All
                         </button>
@@ -567,7 +566,7 @@ function EntryScanner({
               }
             }}
             disabled={refreshing}
-            className="flex items-center gap-1.5 px-3 py-1.5 border border-[#2A2A2A] rounded-full text-xs font-mono uppercase tracking-wider text-gray-300 hover:border-[#F5C518] hover:text-[#F5C518] transition-colors disabled:opacity-40"
+            className="flex items-center gap-1.5 px-3 py-1.5 border border-[#2A2A2A] rounded-full text-xs font-mono uppercase tracking-wider text-gray-300 hover:border-gold hover:text-gold transition-colors disabled:opacity-40"
           >
             <RotateCcw className={`h-3.5 w-3.5 ${refreshing ? 'animate-spin' : ''}`} />
             {refreshing ? 'Scanning' : 'Rescan'}
@@ -708,11 +707,11 @@ function StatCard({
   tone?: 'positive' | 'negative';
 }) {
   const valueColor =
-    tone === 'positive' ? 'text-[#F5C518]' : tone === 'negative' ? 'text-red-500' : 'text-[#F5C518]';
+    tone === 'positive' ? 'text-gold' : tone === 'negative' ? 'text-red-500' : 'text-gold';
 
   if (primary || tone) {
     return (
-      <div className="bg-[#111111] border border-[#F5C518]/30 rounded-2xl p-5">
+      <div className="bg-[#111111] border border-gold/30 rounded-2xl p-5">
         <p className="font-mono text-xs text-gray-400 tracking-widest">{label}</p>
         {value == null ? (
           <div className="h-9 w-28 bg-[#2A2A2A] rounded animate-pulse mt-1" />
@@ -766,14 +765,23 @@ function TradeModal({
   const invalid = shares < 1 || exceedsCash || exceedsShares;
 
   return (
-    <div className="fixed inset-0 z-50 bg-black/40 flex items-center justify-center p-4">
-      <div className="bg-[#111111] rounded-2xl w-full max-w-md p-6 shadow-xl">
+    <div
+      className="fixed inset-0 z-50 bg-black/40 flex items-center justify-center p-4"
+      onClick={onClose}
+    >
+      <div
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="trade-modal-title"
+        onClick={(e) => e.stopPropagation()}
+        className="bg-[#111111] rounded-2xl w-full max-w-md p-6 shadow-xl"
+      >
         <div className="flex items-start justify-between mb-4">
           <div>
             <p className="font-mono text-xs text-gray-400 tracking-widest">
               {isBuy ? 'BUY ORDER' : 'SELL ORDER'}
             </p>
-            <h3 className="text-2xl font-bold mt-1">
+            <h3 id="trade-modal-title" className="text-2xl font-bold mt-1">
               <span className={isBuy ? 'text-emerald-600' : 'text-red-600'}>
                 {action}
               </span>{' '}
@@ -806,7 +814,7 @@ function TradeModal({
               value={sharesInput}
               onChange={(e) => setSharesInput(e.target.value)}
               autoFocus
-              className="w-full px-3 py-2 border border-[#2A2A2A] rounded-lg font-mono tabular-nums focus:outline-none focus:border-[#F5C518]"
+              className="w-full px-3 py-2 border border-[#2A2A2A] rounded-lg font-mono tabular-nums focus:outline-none focus:border-gold"
             />
           </div>
 
@@ -842,7 +850,7 @@ function TradeModal({
               value={reason}
               onChange={(e) => setReason(e.target.value)}
               placeholder="Thesis, catalyst, signal..."
-              className="w-full px-3 py-2 border border-[#2A2A2A] rounded-lg text-sm focus:outline-none focus:border-[#F5C518]"
+              className="w-full px-3 py-2 border border-[#2A2A2A] rounded-lg text-sm focus:outline-none focus:border-gold"
             />
           </div>
 
@@ -866,7 +874,7 @@ function TradeModal({
                 }
               }}
               className={`flex-1 px-4 py-2 rounded-full text-sm font-medium text-white transition-colors disabled:opacity-40 disabled:cursor-not-allowed ${
-                isBuy ? 'bg-[#F5C518] hover:bg-[#F0B800]' : 'bg-red-600 hover:bg-red-700'
+                isBuy ? 'bg-gold hover:bg-[#F0B800]' : 'bg-red-600 hover:bg-red-700'
               }`}
             >
               {submitting ? 'Submitting…' : `Confirm ${action}`}
@@ -895,10 +903,20 @@ function ConfirmModal({
 }) {
   const [submitting, setSubmitting] = useState(false);
   return (
-    <div className="fixed inset-0 z-50 bg-black/40 flex items-center justify-center p-4">
-      <div className="bg-[#111111] rounded-2xl w-full max-w-md p-6 shadow-xl">
-        <h3 className="text-xl font-bold mb-2">{title}</h3>
-        <p className="text-sm text-gray-400 mb-6">{body}</p>
+    <div
+      className="fixed inset-0 z-50 bg-black/40 flex items-center justify-center p-4"
+      onClick={onCancel}
+    >
+      <div
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="confirm-modal-title"
+        aria-describedby="confirm-modal-body"
+        onClick={(e) => e.stopPropagation()}
+        className="bg-[#111111] rounded-2xl w-full max-w-md p-6 shadow-xl"
+      >
+        <h3 id="confirm-modal-title" className="text-xl font-bold mb-2">{title}</h3>
+        <p id="confirm-modal-body" className="text-sm text-gray-400 mb-6">{body}</p>
         <div className="flex gap-2">
           <button
             type="button"
@@ -919,7 +937,7 @@ function ConfirmModal({
               }
             }}
             className={`flex-1 px-4 py-2 rounded-full text-sm font-medium text-white transition-colors disabled:opacity-40 ${
-              tone === 'danger' ? 'bg-red-600 hover:bg-red-700' : 'bg-[#F5C518] hover:bg-[#F0B800]'
+              tone === 'danger' ? 'bg-red-600 hover:bg-red-700' : 'bg-gold hover:bg-[#F0B800]'
             }`}
           >
             {submitting ? 'Working…' : confirmLabel}

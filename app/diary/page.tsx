@@ -370,7 +370,7 @@ function StatsBar({ prices, priceLoading }: { prices: PriceMap; priceLoading: bo
   const today = new Date().toISOString().slice(0, 10);
 
   return (
-    <div id="dashboard-stats" className="bg-[#F5C518] text-black rounded-xl p-6 my-6 grid grid-cols-2 md:grid-cols-5 gap-6 scroll-mt-6">
+    <div id="dashboard-stats" className="bg-gold text-black rounded-xl p-6 my-6 grid grid-cols-2 md:grid-cols-5 gap-6 scroll-mt-6">
       <div>
         <div className="text-xs opacity-50 font-mono">{today}</div>
         <div className="text-3xl font-bold mt-1">{today}</div>
@@ -425,7 +425,7 @@ function TimelineSlider({
       <div className="relative h-3">
         <div className="absolute top-1/2 left-0 right-0 -translate-y-1/2 h-0.5 bg-[#2A2A2A]" />
         <div
-          className="absolute top-1/2 left-0 -translate-y-1/2 h-0.5 bg-[#F5C518] transition-all"
+          className="absolute top-1/2 left-0 -translate-y-1/2 h-0.5 bg-gold transition-all"
           style={{ width: `${progressPct}%` }}
         />
         {SNAPSHOTS.map((_, i) => {
@@ -435,7 +435,7 @@ function TimelineSlider({
               key={i}
               onClick={() => onSelect(i)}
               aria-label={`Snapshot ${i + 1}`}
-              className="absolute top-1/2 -translate-x-1/2 -translate-y-1/2 w-3 h-3 rounded-full bg-[#F5C518] hover:scale-125 transition-transform"
+              className="absolute top-1/2 -translate-x-1/2 -translate-y-1/2 w-3 h-3 rounded-full bg-gold hover:scale-125 transition-transform"
               style={{ left: `${left}%` }}
             />
           );
@@ -449,7 +449,7 @@ function TimelineSlider({
             onClick={() => onSelect(i)}
             className={
               i === activeSnapshot
-                ? "bg-[#F5C518] text-black px-4 py-1.5 rounded-full text-sm font-mono"
+                ? "bg-gold text-black px-4 py-1.5 rounded-full text-sm font-mono"
                 : "border border-[#2A2A2A] text-gray-300 px-4 py-1.5 rounded-full text-sm font-mono hover:bg-[#1F1F00] transition-colors"
             }
           >
@@ -499,7 +499,7 @@ function PerformanceChart({
               onClick={() => toggleBenchmark(b.key)}
               className={
                 active
-                  ? "bg-[#F5C518] text-black px-3 py-1 rounded-full text-xs font-mono"
+                  ? "bg-gold text-black px-3 py-1 rounded-full text-xs font-mono"
                   : "border border-[#2A2A2A] text-gray-300 px-3 py-1 rounded-full text-xs font-mono hover:bg-[#1F1F00] transition-colors"
               }
             >
@@ -616,7 +616,7 @@ function PerformanceChart({
         <span>— Nick NAV</span>
         <span>·· SPY · S&amp;P 500</span>
         <span className="inline-flex items-center gap-1">
-          <span className="inline-block w-3 h-2 bg-[#F5C518] opacity-60 rounded-sm" /> Relative gap
+          <span className="inline-block w-3 h-2 bg-gold opacity-60 rounded-sm" /> Relative gap
         </span>
       </div>
 
@@ -788,7 +788,7 @@ function HoldingsTable({
                   onClick={() => onSelect(h.ticker)}
                   className={
                     selected
-                      ? "bg-[#1A1A1A] border-l-4 border-l-[#F5C518] cursor-pointer transition-colors border-b border-b-[#2A2A2A]"
+                      ? "bg-[#1A1A1A] border-l-4 border-l-gold cursor-pointer transition-colors border-b border-b-[#2A2A2A]"
                       : "hover:bg-[#1F1F00] cursor-pointer transition-colors border-b border-[#2A2A2A]"
                   }
                 >
@@ -830,7 +830,7 @@ function HoldingsTable({
                     <div className="flex items-center gap-2 mb-1">
                       <div className="w-16 h-1.5 bg-[#2A2A2A] rounded-full overflow-hidden">
                         <div
-                          className="h-full bg-[#F5C518] rounded-full"
+                          className="h-full bg-gold rounded-full"
                           style={{ width: `${Math.min(h.weight * 4, 100)}%` }}
                         />
                       </div>
@@ -914,7 +914,7 @@ function ThesisPanel({ ticker, onClose }: { ticker: string; onClose: () => void 
               key={i}
               className="border border-[#2A2A2A] rounded-lg p-3 mb-2 flex gap-2"
             >
-              <span className="text-[#F5C518] text-xs leading-relaxed">◎</span>
+              <span className="text-gold text-xs leading-relaxed">◎</span>
               <span className="text-xs text-gray-300 leading-relaxed">{kc}</span>
             </div>
           ))}
