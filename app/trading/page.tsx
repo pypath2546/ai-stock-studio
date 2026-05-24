@@ -39,6 +39,28 @@ interface Portfolio {
   startValue: number;
 }
 
+interface ScanRow {
+  ticker: string;
+  loading: boolean;
+  error?: string;
+  currentPrice?: number;
+  rsi?: number;
+  sma20?: number;
+  priceVsSMA?: number;
+  entryPrice?: number;
+  signal?: 'BUY' | 'SELL' | 'WATCH' | 'HOLD';
+}
+
+type EntryZone = 'GOOD' | 'NEUTRAL' | 'WAIT' | 'UNKNOWN';
+
+function classifyEntry(rsi?: number, priceVsSMA?: number): EntryZone {
+  if (rsi == null) return 'UNKNOWN';
+  if (rsi > 65) return 'WAIT';
+  if (rsi < 45 && priceVsSMA != null && priceVsSMA <= 2) return 'GOOD';
+  if (rsi >= 45 && rsi <= 60) return 'NEUTRAL';
+  return 'NEUTRAL';
+}
+
 type ModalState =
   | { kind: 'trade'; action: 'BUY' | 'SELL'; ticker: string }
   | { kind: 'reset' }
@@ -65,6 +87,63 @@ export default function TradingPage() {
   const [modal, setModal] = useState<ModalState>(null);
   const [historyOpen, setHistoryOpen] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [scan, setScan] = useState<Record<string, ScanRow>>(() =>
+    Object.fromEntries(STOCKS.map((t) => [t, { ticker: t, loading: true }])),
+  );
+  const [scanRefreshAt, setScanRefreshAt] = useState<string | null>(null);
+
+  const refreshScan = useCallback(async () => {
+    setScan((prev) => {
+      const next = { ...prev };
+      for (const t of STOCKS) next[t] = { ticker: t, loading: true };
+      return next;
+    });
+    await Promise.all(
+      STOCKS.map(async (ticker) => {
+        try {
+          const res = await fetch(`/api/agents/technical?ticker=${ticker}`);
+          const data = await res.json();
+          if (!res.ok || data.error) {
+            setScan((prev) => ({
+              ...prev,
+              [ticker]: { ticker, loading: false, error: data.error || `HTTP ${res.status}` },
+            }));
+            return;
+          }
+          const sma20 = data.indicators?.sma20 as number | undefined;
+          const priceVsSMAStr = data.indicators?.priceVsSMA as string | undefined;
+          const priceVsSMA = priceVsSMAStr != null ? parseFloat(priceVsSMAStr) : undefined;
+          setScan((prev) => ({
+            ...prev,
+            [ticker]: {
+              ticker,
+              loading: false,
+              currentPrice: data.currentPrice,
+              rsi: data.indicators?.rsi,
+              sma20,
+              priceVsSMA,
+              entryPrice: sma20 != null ? parseFloat((sma20 * 0.97).toFixed(2)) : undefined,
+              signal: data.signal,
+            },
+          }));
+        } catch (err) {
+          setScan((prev) => ({
+            ...prev,
+            [ticker]: {
+              ticker,
+              loading: false,
+              error: err instanceof Error ? err.message : 'Failed',
+            },
+          }));
+        }
+      }),
+    );
+    setScanRefreshAt(new Date().toISOString());
+  }, []);
+
+  useEffect(() => {
+    refreshScan().catch(() => {});
+  }, [refreshScan]);
 
   const refreshAll = useCallback(async () => {
     const [pRes, fRes] = await Promise.all([
@@ -193,6 +272,9 @@ export default function TradingPage() {
           sub={loading || !portfolio ? '' : `${portfolio.trades.length} trades total`}
         />
       </section>
+
+      {/* B2. Nick's Entry Scanner */}
+      <EntryScanner scan={scan} refreshAt={scanRefreshAt} onRefresh={refreshScan} />
 
       {/* C. Quick Trade Panel */}
       <section className="bg-[#111111] border border-[#2A2A2A] rounded-2xl p-6 mb-6">
@@ -443,6 +525,172 @@ export default function TradingPage() {
         />
       )}
     </div>
+  );
+}
+
+function EntryScanner({
+  scan,
+  refreshAt,
+  onRefresh,
+}: {
+  scan: Record<string, ScanRow>;
+  refreshAt: string | null;
+  onRefresh: () => Promise<void>;
+}) {
+  const [refreshing, setRefreshing] = useState(false);
+  const rows = STOCKS.map((t) => scan[t]).filter(Boolean) as ScanRow[];
+
+  return (
+    <section className="bg-[#111111] border border-[#2A2A2A] rounded-2xl p-6 mb-6">
+      <div className="flex items-center justify-between mb-4">
+        <div>
+          <p className="font-mono text-xs text-gray-400 tracking-widest">NICK&apos;S ENTRY SCANNER</p>
+          <h3 className="text-lg font-bold text-white mt-1">Where to put new money</h3>
+          <p className="text-xs text-gray-400 mt-1">
+            Entry zone = SMA20 × 0.97 (3% below trend) · RSI &lt; 45 + near SMA20 = good entry
+          </p>
+        </div>
+        <div className="flex items-center gap-3">
+          {refreshAt && (
+            <span className="hidden sm:inline font-mono text-[10px] text-gray-500 uppercase tracking-widest">
+              {new Date(refreshAt).toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' })}
+            </span>
+          )}
+          <button
+            type="button"
+            onClick={async () => {
+              setRefreshing(true);
+              try {
+                await onRefresh();
+              } finally {
+                setRefreshing(false);
+              }
+            }}
+            disabled={refreshing}
+            className="flex items-center gap-1.5 px-3 py-1.5 border border-[#2A2A2A] rounded-full text-xs font-mono uppercase tracking-wider text-gray-300 hover:border-[#F5C518] hover:text-[#F5C518] transition-colors disabled:opacity-40"
+          >
+            <RotateCcw className={`h-3.5 w-3.5 ${refreshing ? 'animate-spin' : ''}`} />
+            {refreshing ? 'Scanning' : 'Rescan'}
+          </button>
+        </div>
+      </div>
+
+      <div className="overflow-x-auto">
+        <table className="w-full text-sm">
+          <thead>
+            <tr className="border-b border-[#2A2A2A]">
+              {['TICKER', 'PRICE', 'RSI', 'VS SMA20', 'ENTRY ZONE', 'SIGNAL'].map((h, i) => (
+                <th
+                  key={h}
+                  className={`py-2 px-2 font-mono text-[10px] text-gray-400 uppercase tracking-widest ${
+                    i === 0 ? 'text-left' : 'text-right'
+                  }`}
+                >
+                  {h}
+                </th>
+              ))}
+            </tr>
+          </thead>
+          <tbody className="divide-y divide-[#2A2A2A]">
+            {rows.map((r) => (
+              <ScannerRow key={r.ticker} row={r} />
+            ))}
+          </tbody>
+        </table>
+      </div>
+    </section>
+  );
+}
+
+function ScannerRow({ row }: { row: ScanRow }) {
+  if (row.loading) {
+    return (
+      <tr>
+        <td className="py-3 px-2 font-bold text-white">{row.ticker}</td>
+        <td colSpan={5} className="py-3 px-2 text-right">
+          <span className="font-mono text-xs text-gray-400 animate-pulse">scanning…</span>
+        </td>
+      </tr>
+    );
+  }
+
+  if (row.error || row.rsi == null) {
+    return (
+      <tr>
+        <td className="py-3 px-2 font-bold text-white">{row.ticker}</td>
+        <td colSpan={5} className="py-3 px-2 text-right font-mono text-xs text-gray-400">
+          {row.error || 'no data'}
+        </td>
+      </tr>
+    );
+  }
+
+  const zone = classifyEntry(row.rsi, row.priceVsSMA);
+  const zoneStyles: Record<EntryZone, { bg: string; text: string; label: string }> = {
+    GOOD: { bg: 'bg-emerald-500/15 border border-emerald-500/40', text: 'text-emerald-400', label: 'Good entry' },
+    NEUTRAL: { bg: 'bg-amber-500/15 border border-amber-500/40', text: 'text-amber-400', label: 'Neutral' },
+    WAIT: { bg: 'bg-red-500/15 border border-red-500/40', text: 'text-red-400', label: 'Wait' },
+    UNKNOWN: { bg: 'bg-[#1A1A1A] border border-[#2A2A2A]', text: 'text-gray-400', label: '—' },
+  };
+  const zoneCfg = zoneStyles[zone];
+
+  const rsiColor =
+    row.rsi < 45 ? 'text-emerald-400' : row.rsi > 65 ? 'text-red-400' : 'text-amber-400';
+
+  const vsSmaColor =
+    row.priceVsSMA == null
+      ? 'text-gray-400'
+      : row.priceVsSMA < 0
+        ? 'text-emerald-400'
+        : row.priceVsSMA > 5
+          ? 'text-red-400'
+          : 'text-gray-200';
+
+  const signalColors: Record<NonNullable<ScanRow['signal']>, string> = {
+    BUY: 'bg-emerald-500/20 text-emerald-300',
+    SELL: 'bg-red-500/20 text-red-300',
+    WATCH: 'bg-amber-500/20 text-amber-300',
+    HOLD: 'bg-[#1F1F00] text-gray-300',
+  };
+
+  return (
+    <tr className="hover:bg-[#1A1A00]/40 transition-colors">
+      <td className="py-3 px-2">
+        <div className="font-bold text-white">{row.ticker}</div>
+      </td>
+      <td className="py-3 px-2 text-right font-mono tabular-nums text-gray-200">
+        {row.currentPrice != null ? `$${row.currentPrice.toFixed(2)}` : '—'}
+      </td>
+      <td className={`py-3 px-2 text-right font-mono tabular-nums font-semibold ${rsiColor}`}>
+        {row.rsi.toFixed(1)}
+      </td>
+      <td className={`py-3 px-2 text-right font-mono tabular-nums ${vsSmaColor}`}>
+        {row.priceVsSMA == null
+          ? '—'
+          : `${row.priceVsSMA > 0 ? '+' : ''}${row.priceVsSMA.toFixed(2)}%`}
+      </td>
+      <td className="py-3 px-2 text-right">
+        <div className={`inline-flex flex-col items-end gap-0.5 px-2.5 py-1 rounded-lg ${zoneCfg.bg}`}>
+          <span className={`font-mono text-[10px] uppercase tracking-wider font-semibold ${zoneCfg.text}`}>
+            {zoneCfg.label}
+          </span>
+          {row.entryPrice != null && (
+            <span className="font-mono text-[11px] tabular-nums text-gray-200">
+              @ ${row.entryPrice.toFixed(2)}
+            </span>
+          )}
+        </div>
+      </td>
+      <td className="py-3 px-2 text-right">
+        {row.signal && (
+          <span
+            className={`px-2 py-0.5 rounded-full text-[10px] font-mono uppercase tracking-wider ${signalColors[row.signal]}`}
+          >
+            {row.signal}
+          </span>
+        )}
+      </td>
+    </tr>
   );
 }
 
