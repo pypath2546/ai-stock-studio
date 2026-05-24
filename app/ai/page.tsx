@@ -25,18 +25,91 @@ interface PipelineColors {
 }
 
 interface AnalysisResult {
+  ticker: string;
   recommendation: string;
   confidence: number;
-  sentiment: number;
-  signals: string[];
+  currentPrice: number | null | undefined;
+  signals: {
+    technical?: string;
+    sentiment?: string;
+    quality?: string;
+  };
+  technical: {
+    rsi?: number;
+    signal?: string;
+    reason?: string;
+  };
+  news: {
+    articles?: number;
+    sentiment?: string;
+    score?: number;
+  };
+  quality: {
+    approved?: boolean;
+    passed?: string;
+  };
+}
+
+const TICKERS = ['GOOGL', 'AVGO', 'AMZN', 'UBER', 'CRWD', 'RBRK', 'NVDA', 'META', 'MSFT', 'TSLA', 'PLTR'] as const;
+
+function generateCommentary(result: AnalysisResult): string {
+  const { ticker, recommendation, confidence, technical, news, currentPrice } = result;
+
+  const rsi = technical?.rsi;
+  const sentiment = news?.sentiment;
+  const articles = news?.articles ?? 0;
+  const score = news?.score ?? 0;
+  const priceStr = currentPrice != null ? `$${currentPrice.toFixed(2)}` : "—";
+
+  const rsiComment =
+    rsi == null
+      ? `ยังไม่พบค่า RSI สำหรับ ${ticker}`
+      : rsi < 30
+      ? `RSI ที่ ${rsi} บ่งชี้ว่า ${ticker} อยู่ในโซน oversold — ราคาอาจถูก undervalue`
+      : rsi > 70
+      ? `RSI ที่ ${rsi} บ่งชี้ว่า ${ticker} อยู่ในโซน overbought — ระวังการ correction`
+      : rsi < 45
+      ? `RSI ที่ ${rsi} อยู่ในโซน neutral-bearish — momentum ยังไม่แข็งแกร่ง`
+      : `RSI ที่ ${rsi} อยู่ในโซน neutral-bullish — momentum สมดุลดี`;
+
+  const smaComment = technical?.reason?.includes("above")
+    ? `ราคาปัจจุบัน ${priceStr} อยู่เหนือ SMA20 — trend ระยะสั้นเป็นบวก`
+    : `ราคาปัจจุบัน ${priceStr} อยู่ต่ำกว่า SMA20 — trend ระยะสั้นอ่อนแอ`;
+
+  const newsComment =
+    articles === 0
+      ? `ไม่พบข่าวที่เกี่ยวข้องกับ ${ticker} ในช่วงนี้ — อาจเป็นช่วง quiet period`
+      : sentiment === "POSITIVE"
+      ? `ข่าว ${articles} บทความมี sentiment เป็นบวก (score: ${score}) — market perception ดี`
+      : sentiment === "NEGATIVE"
+      ? `ข่าว ${articles} บทความมี sentiment เป็นลบ (score: ${score}) — มีแรงกดดันจากข่าว`
+      : `ข่าว ${articles} บทความมี sentiment เป็นกลาง — ตลาดยังไม่มีทิศทางชัดเจน`;
+
+  const recComment =
+    recommendation === "BUY"
+      ? `สัญญาณ Technical และ News ชี้ไปในทิศทางเดียวกัน — ${ticker} น่าสนใจสำหรับการเข้าซื้อ`
+      : recommendation === "SELL"
+      ? `ทั้ง Technical และ News ส่งสัญญาณลบพร้อมกัน — ควรพิจารณาลดความเสี่ยง`
+      : recommendation === "WATCH"
+      ? `สัญญาณยังไม่ชัดเจนพอ — ควร monitor ${ticker} ต่อไปก่อนตัดสินใจ`
+      : `ไม่มีสัญญาณที่แข็งแกร่งพอในทิศทางใด — Nick แนะนำให้ถือและรอสัญญาณที่ชัดขึ้น`;
+
+  const confComment =
+    confidence >= 80
+      ? `ความมั่นใจสูง (${confidence}%) — สัญญาณหลายตัวชี้ทิศทางเดียวกัน`
+      : confidence >= 65
+      ? `ความมั่นใจปานกลาง (${confidence}%) — มีสัญญาณสนับสนุนแต่ยังไม่แข็งแกร่ง`
+      : `ความมั่นใจต่ำ (${confidence}%) — สัญญาณขัดแย้งกัน ควรระวัง`;
+
+  return `${rsiComment}. ${smaComment}. ${newsComment}. ${recComment}. ${confComment}.`;
 }
 
 const pipelineColors: Record<string, PipelineColors> = {
-  Orchestrator:   { dot: "bg-amber-400",  border: "border-amber-300",  leftColor: "#fbbf24", bg: "bg-amber-50",  glow: "shadow-amber-200" },
-  Technical:      { dot: "bg-blue-400",   border: "border-blue-300",   leftColor: "#60a5fa", bg: "bg-blue-50",   glow: "shadow-blue-200" },
-  News:           { dot: "bg-green-400",  border: "border-green-300",  leftColor: "#4ade80", bg: "bg-green-50",  glow: "shadow-green-200" },
-  "Quality Gate": { dot: "bg-red-400",    border: "border-red-300",    leftColor: "#f87171", bg: "bg-red-50",    glow: "shadow-red-200" },
-  Report:         { dot: "bg-purple-400", border: "border-purple-300", leftColor: "#c084fc", bg: "bg-purple-50", glow: "shadow-purple-200" },
+  Orchestrator:   { dot: "bg-amber-400",  border: "border-[#F5C518]", leftColor: "#fbbf24", bg: "bg-[#2A1A00]", glow: "shadow-[0_0_24px_-4px_#F5C518]" },
+  Technical:      { dot: "bg-blue-400",   border: "border-[#F5C518]", leftColor: "#60a5fa", bg: "bg-[#001A2A]", glow: "shadow-[0_0_24px_-4px_#F5C518]" },
+  News:           { dot: "bg-green-400",  border: "border-[#F5C518]", leftColor: "#4ade80", bg: "bg-[#001A0A]", glow: "shadow-[0_0_24px_-4px_#F5C518]" },
+  "Quality Gate": { dot: "bg-red-400",    border: "border-[#F5C518]", leftColor: "#f87171", bg: "bg-[#1A0000]", glow: "shadow-[0_0_24px_-4px_#F5C518]" },
+  Report:         { dot: "bg-purple-400", border: "border-[#F5C518]", leftColor: "#c084fc", bg: "bg-[#1A002A]", glow: "shadow-[0_0_24px_-4px_#F5C518]" },
 };
 
 const AGENTS: Agent[] = [
@@ -62,14 +135,6 @@ const PIPELINE_GROUPS = [
 ];
 
 const PIPELINES = ["All", "Orchestrator", "Technical", "News", "Quality Gate", "Report"];
-
-const AGENT_ORDER = [
-  ["KIRA"],
-  ["RENZO", "SABLE", "DRIX"],
-  ["NICO", "VERA", "ZOLA"],
-  ["CAIN", "NORA"],
-  ["ATLAS", "FINN"],
-];
 
 const AI_OUTLINE = [
   { href: "#ai-orchestrator", label: "Orchestrator" },
@@ -103,6 +168,7 @@ export default function AIPage() {
   const [analysisResult, setAnalysisResult] = useState<AnalysisResult | null>(null);
   const [showWatchlist, setShowWatchlist]   = useState(false);
   const [watchlistPrices, setWatchlistPrices] = useState<Record<string, { last: number | null; change: string | null }>>({});
+  const [selectedTicker, setSelectedTicker] = useState<string>('NVDA');
   const router = useRouter();
   const { setItems } = useNewsOutline();
 
@@ -123,29 +189,49 @@ export default function AIPage() {
     setAgentStatuses({});
     setAnalysisResult(null);
 
-    for (const group of AGENT_ORDER) {
-      setAgentStatuses(prev => ({
-        ...prev,
-        ...Object.fromEntries(group.map(name => [name, "running" as AgentStatus])),
-      }));
-      await new Promise(r => setTimeout(r, 1500));
-      setAgentStatuses(prev => ({
-        ...prev,
-        ...Object.fromEntries(group.map(name => [name, "done" as AgentStatus])),
-      }));
-      await new Promise(r => setTimeout(r, 300));
-    }
+    // Stage 1: KIRA orchestrates
+    setAgentStatuses({ KIRA: 'running' });
+    await new Promise(r => setTimeout(r, 800));
+    setAgentStatuses({ KIRA: 'done' });
+
+    // Stage 2: Technical pipeline
+    setAgentStatuses(prev => ({ ...prev, RENZO: 'running', SABLE: 'running', DRIX: 'running' }));
+    const techPromise = fetch(`/api/agents/technical?ticker=${selectedTicker}`).then(r => r.json());
+    await new Promise(r => setTimeout(r, 1000));
+    await techPromise;
+    setAgentStatuses(prev => ({ ...prev, RENZO: 'done', SABLE: 'done', DRIX: 'done' }));
+
+    // Stage 3: News pipeline
+    setAgentStatuses(prev => ({ ...prev, NICO: 'running', VERA: 'running', ZOLA: 'running' }));
+    const newsPromise = fetch(`/api/agents/news?ticker=${selectedTicker}`).then(r => r.json());
+    await new Promise(r => setTimeout(r, 1000));
+    await newsPromise;
+    setAgentStatuses(prev => ({ ...prev, NICO: 'done', VERA: 'done', ZOLA: 'done' }));
+
+    // Stage 4: Quality gate
+    setAgentStatuses(prev => ({ ...prev, CAIN: 'running', NORA: 'running' }));
+    const qualityPromise = fetch(`/api/agents/quality?ticker=${selectedTicker}`).then(r => r.json());
+    await new Promise(r => setTimeout(r, 800));
+    await qualityPromise;
+    setAgentStatuses(prev => ({ ...prev, CAIN: 'done', NORA: 'done' }));
+
+    // Stage 5: Report
+    setAgentStatuses(prev => ({ ...prev, ATLAS: 'running', FINN: 'running' }));
+    const reportRes = await fetch(`/api/agents/report?ticker=${selectedTicker}`).then(r => r.json());
+    await new Promise(r => setTimeout(r, 800));
+    setAgentStatuses(prev => ({ ...prev, ATLAS: 'done', FINN: 'done' }));
 
     setAnalysisResult({
-      recommendation: "HOLD",
-      confidence: 87,
-      sentiment: 0.72,
-      signals: [
-        "Technical: NVDA showing bullish divergence on RSI",
-        "News: Positive sentiment across AI sector (+0.72)",
-        "Quality: All 7 holdings pass kill conditions",
-      ],
+      ticker: selectedTicker,
+      recommendation: reportRes.recommendation,
+      confidence: reportRes.confidence,
+      currentPrice: reportRes.currentPrice,
+      signals: reportRes.signals ?? {},
+      technical: reportRes.technical ?? {},
+      news: reportRes.news ?? {},
+      quality: reportRes.quality ?? {},
     });
+
     setIsAnalyzing(false);
   };
 
@@ -172,10 +258,10 @@ export default function AIPage() {
             <p className="text-sm font-mono text-gray-400 tracking-widest uppercase mb-1">
               AI STOCK STUDIO
             </p>
-            <h1 className="text-4xl font-bold text-gray-900">
+            <h1 className="text-4xl font-bold text-white">
               AI <span className="italic text-amber-600">Studio.</span>
             </h1>
-            <p className="text-sm text-gray-500 mt-2 font-mono">
+            <p className="text-sm text-gray-400 mt-2 font-mono">
               {AGENTS.length} AGENTS · {PIPELINE_GROUPS.length} PIPELINES · 1 ORCHESTRATOR · {errCount} ERRORS
               {totalDone > 0 && ` · ${totalDone} DONE`}
               {totalRunning > 0 && ` · ${totalRunning} RUNNING`}
@@ -185,14 +271,14 @@ export default function AIPage() {
             {analysisResult && (
               <button
                 onClick={handleReset}
-                className="px-4 py-3 border border-[#E0D9C8] text-gray-600 rounded-xl hover:bg-[#F0E8D8] transition-all text-sm font-mono"
+                className="px-4 py-3 border border-[#2A2A2A] text-gray-300 rounded-xl hover:bg-[#1A1A1A] transition-all text-sm font-mono"
               >
                 Reset ↺
               </button>
             )}
             <button
               onClick={() => setShowWatchlist(!showWatchlist)}
-              className="flex items-center gap-2 px-4 py-3 border border-[#E0D9C8] bg-white rounded-xl hover:bg-[#F5F0E8] transition-all font-medium text-gray-700"
+              className="flex items-center gap-2 px-4 py-3 border border-[#2A2A2A] bg-[#111111] rounded-xl hover:bg-[#1F1F00] transition-all font-medium text-gray-300"
             >
               <TrendingUp className="w-4 h-4" />
               Watchlist
@@ -200,7 +286,7 @@ export default function AIPage() {
             <button
               onClick={handleRunAnalysis}
               disabled={isAnalyzing}
-              className="flex items-center gap-2 px-6 py-3 bg-[#4a5c3f] text-white rounded-xl hover:bg-[#5a7a4a] disabled:opacity-50 transition-all font-medium"
+              className="flex items-center gap-2 px-6 py-3 bg-[#F5C518] text-black rounded-xl hover:bg-[#F0B800] disabled:opacity-50 transition-all font-medium"
             >
               <Play className="w-4 h-4" />
               {isAnalyzing ? "Running…" : "Run Analysis"}
@@ -219,8 +305,8 @@ export default function AIPage() {
               onClick={() => setActivePipeline(p)}
               className={`flex items-center gap-1.5 px-4 py-1.5 rounded-full text-sm font-medium transition-all ${
                 activePipeline === p
-                  ? "bg-[#4a5c3f] text-white"
-                  : "border border-[#E0D9C8] text-gray-600 hover:bg-[#F0E8D8]"
+                  ? "bg-[#F5C518] text-black"
+                  : "border border-[#2A2A2A] text-gray-300 hover:bg-[#1A1A1A]"
               }`}
             >
               <span
@@ -234,8 +320,27 @@ export default function AIPage() {
         })}
       </div>
 
+      {/* Ticker selector */}
+      <div className="flex gap-2 flex-wrap mb-6 items-center">
+        <p className="text-sm font-mono text-gray-400 mr-2">Analyze:</p>
+        {TICKERS.map(t => (
+          <button
+            key={t}
+            onClick={() => setSelectedTicker(t)}
+            disabled={isAnalyzing}
+            className={`px-3 py-1 rounded-full text-xs font-mono font-bold transition-all disabled:opacity-50 disabled:cursor-not-allowed ${
+              selectedTicker === t
+                ? "bg-[#F5C518] text-black"
+                : "border border-[#2A2A2A] text-gray-300 hover:bg-[#1F1F00]"
+            }`}
+          >
+            {t}
+          </button>
+        ))}
+      </div>
+
       {/* Pipeline layout */}
-      <div className="bg-white border border-[#E0D9C8] rounded-2xl p-6">
+      <div className="bg-[#111111] border border-[#2A2A2A] rounded-2xl p-6">
         {visibleGroups.map((group, idx) => {
           const groupAgents = AGENTS.filter(a => a.pipeline === group.id);
           const colors = pipelineColors[group.id];
@@ -260,7 +365,7 @@ export default function AIPage() {
                       isGroupRunning ? "animate-pulse" : ""
                     }`}
                   />
-                  <span className="font-mono text-xs font-bold text-gray-700 tracking-wider">
+                  <span className="font-mono text-xs font-bold text-gray-300 tracking-wider">
                     {group.label}
                   </span>
                 </div>
@@ -288,86 +393,154 @@ export default function AIPage() {
       {/* Analysis result */}
       {analysisResult && (
         <div
-          className="mt-8 bg-white border border-[#E0D9C8] rounded-2xl p-6"
+          className="mt-8 bg-[#111111] border border-[#2A2A2A] rounded-2xl p-6"
           style={{ animation: "fadeInUp 0.5s ease-out" }}
         >
           <div className="flex items-center justify-between mb-6">
-            <h3 className="text-lg font-bold">Analysis Complete</h3>
+            <div>
+              <p className="font-mono text-xs text-gray-400 tracking-widest">
+                ANALYSIS COMPLETE · {analysisResult.ticker}
+              </p>
+              <h3 className="text-xl font-bold mt-1">
+                {analysisResult.currentPrice != null
+                  ? `$${analysisResult.currentPrice.toFixed(2)} · ${analysisResult.ticker}`
+                  : analysisResult.ticker}
+              </h3>
+            </div>
             <button
               onClick={handleReset}
-              className="text-xs font-mono text-gray-400 hover:text-gray-600 transition-colors"
+              className="text-xs font-mono text-gray-400 hover:text-gray-300 transition-colors"
             >
               Reset ↺
             </button>
           </div>
 
-          <div className="flex flex-wrap gap-8">
-            <div className="text-center">
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-6">
+            <div className="text-center bg-[#1A1A1A] rounded-xl p-4">
               <p className="font-mono text-xs text-gray-400 tracking-widest">RECOMMENDATION</p>
               <p
-                className={`text-4xl font-bold mt-1 ${
+                className={`text-3xl font-bold mt-2 ${
                   analysisResult.recommendation === "BUY"
-                    ? "text-emerald-600"
+                    ? "text-[#F5C518]"
                     : analysisResult.recommendation === "SELL"
-                    ? "text-red-600"
-                    : "text-amber-600"
+                    ? "text-red-500"
+                    : analysisResult.recommendation === "WATCH"
+                    ? "text-blue-400"
+                    : "text-gray-300"
                 }`}
               >
                 {analysisResult.recommendation}
               </p>
             </div>
-
-            <div className="text-center">
+            <div className="text-center bg-[#1A1A1A] rounded-xl p-4">
               <p className="font-mono text-xs text-gray-400 tracking-widest">CONFIDENCE</p>
-              <p className="text-4xl font-bold mt-1 text-gray-900">
-                {analysisResult.confidence}%
+              <p className="text-3xl font-bold mt-2">{analysisResult.confidence}%</p>
+            </div>
+            <div className="text-center bg-[#1A1A1A] rounded-xl p-4">
+              <p className="font-mono text-xs text-gray-400 tracking-widest">QUALITY GATE</p>
+              <p
+                className={`text-3xl font-bold mt-2 ${
+                  analysisResult.quality?.approved ? "text-[#F5C518]" : "text-red-500"
+                }`}
+              >
+                {analysisResult.quality?.approved ? "PASS" : "FAIL"}
+              </p>
+              {analysisResult.quality?.passed && (
+                <p className="text-[10px] font-mono text-gray-400 mt-1">
+                  {analysisResult.quality.passed} checks
+                </p>
+              )}
+            </div>
+          </div>
+
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <div className="bg-[#1A1A1A] rounded-xl p-4">
+              <p className="font-mono text-xs text-gray-400 tracking-widest mb-2">TECHNICAL</p>
+              <p className="font-bold text-sm">{analysisResult.technical?.signal ?? "—"}</p>
+              <p className="text-xs text-gray-400 mt-1">
+                {analysisResult.technical?.reason ?? ""}
               </p>
             </div>
-
-            <div className="text-center">
-              <p className="font-mono text-xs text-gray-400 tracking-widest">NEWS SENTIMENT</p>
-              <p className="text-4xl font-bold mt-1 text-blue-600">
-                +{analysisResult.sentiment}
+            <div className="bg-[#1A1A1A] rounded-xl p-4">
+              <p className="font-mono text-xs text-gray-400 tracking-widest mb-2">
+                NEWS SENTIMENT
+              </p>
+              <p
+                className={`font-bold text-sm ${
+                  analysisResult.news?.sentiment === "POSITIVE"
+                    ? "text-emerald-600"
+                    : analysisResult.news?.sentiment === "NEGATIVE"
+                    ? "text-red-600"
+                    : "text-amber-600"
+                }`}
+              >
+                {analysisResult.news?.sentiment ?? "—"}
+              </p>
+              <p className="text-xs text-gray-400 mt-1">
+                {analysisResult.news?.articles ?? 0} articles · Score:{" "}
+                {analysisResult.news?.score ?? 0}
               </p>
             </div>
+          </div>
 
-            <div className="flex-1 min-w-[200px]">
-              <p className="font-mono text-xs text-gray-400 tracking-widest mb-3">KEY SIGNALS</p>
-              {analysisResult.signals.map((signal, i) => (
-                <div key={i} className="flex items-start gap-2 mb-1.5">
-                  <span className="text-emerald-500 mt-0.5 shrink-0">●</span>
-                  <span className="text-sm text-gray-600">{signal}</span>
+          {/* Nick commentary */}
+          <div className="mt-4 bg-[#1A1A1A] border border-[#2A2A2A] rounded-xl p-5">
+            <div className="flex items-start gap-3">
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img
+                src="https://api.dicebear.com/7.x/notionists/svg?seed=nick-portfolio&backgroundColor=ffd89b"
+                className="w-10 h-10 rounded-xl shrink-0"
+                alt="Nick"
+              />
+              <div className="flex-1">
+                <div className="flex items-center gap-2 mb-2 flex-wrap">
+                  <span className="font-bold text-sm">NICK</span>
+                  <span className="font-mono text-xs text-gray-400">PORTFOLIO MANAGER</span>
+                  <span className="font-mono text-xs text-gray-400">
+                    {new Date().toLocaleDateString("th-TH", {
+                      day: "numeric",
+                      month: "short",
+                      year: "numeric",
+                    })}
+                  </span>
                 </div>
-              ))}
+                <p className="text-sm text-gray-300 leading-relaxed">
+                  {generateCommentary(analysisResult)}
+                </p>
+                <p className="text-xs text-gray-400 font-mono mt-3">
+                  * การวิเคราะห์นี้เป็น paper trading เพื่อการศึกษาเท่านั้น
+                  ไม่ใช่คำแนะนำการลงทุน
+                </p>
+              </div>
             </div>
           </div>
         </div>
       )}
 
       {/* Footer */}
-      <footer className="mt-12 border-t border-[#E0D9C8] pt-4 flex flex-col sm:flex-row justify-between gap-2">
-        <p className="font-mono text-xs text-gray-400">
+      <footer className="mt-12 border-t border-[#2A2A2A] pt-4 flex flex-col sm:flex-row justify-between gap-2">
+        <p className="font-mono text-xs text-gray-500">
           AI STOCK STUDIO · POWERED BY CLAUDE OPUS 4.7
         </p>
-        <p className="font-mono text-xs text-gray-400">
+        <p className="font-mono text-xs text-gray-500">
           CLICK A CARD TO INSPECT · RUN TO ANALYZE · ESC TO RESET
         </p>
       </footer>
 
       {/* Watchlist slide-over */}
       <div
-        className={`fixed top-0 right-0 h-full w-80 bg-white border-l border-[#E0D9C8] shadow-xl z-50 transform transition-transform duration-300 ${
+        className={`fixed top-0 right-0 h-full w-80 bg-[#111111] border-l border-[#2A2A2A] shadow-xl z-50 transform transition-transform duration-300 ${
           showWatchlist ? "translate-x-0" : "translate-x-full"
         }`}
       >
-        <div className="p-5 border-b border-[#E0D9C8] flex justify-between items-center">
+        <div className="p-5 border-b border-[#2A2A2A] flex justify-between items-center">
           <div>
             <h3 className="font-bold text-lg">Watchlist</h3>
             <p className="text-xs font-mono text-gray-400">Yim&apos;s Portfolio · Live</p>
           </div>
           <button
             onClick={() => setShowWatchlist(false)}
-            className="text-gray-400 hover:text-gray-600 text-lg leading-none"
+            className="text-gray-400 hover:text-gray-300 text-lg leading-none"
           >
             ✕
           </button>
@@ -386,7 +559,7 @@ export default function AIPage() {
               <div
                 key={stock.ticker}
                 onClick={() => { setShowWatchlist(false); router.push("/diary"); }}
-                className="bg-[#F8F5EE] border border-[#E0D9C8] rounded-xl p-3 cursor-pointer hover:bg-[#F0E8D8] transition-colors"
+                className="bg-[#1A1A1A] border border-[#2A2A2A] rounded-xl p-3 cursor-pointer hover:bg-[#1A1A1A] transition-colors"
               >
                 <div className="flex justify-between items-start">
                   <div>
@@ -416,7 +589,7 @@ export default function AIPage() {
 
           <a
             href="/diary"
-            className="block w-full text-center py-3 mt-4 border border-[#4a5c3f] text-[#4a5c3f] rounded-xl text-sm font-medium hover:bg-[#4a5c3f] hover:text-white transition-colors"
+            className="block w-full text-center py-3 mt-4 border border-[#F5C518] text-[#F5C518] rounded-xl text-sm font-medium hover:bg-[#F5C518] hover:text-white transition-colors"
           >
             View Full Portfolio →
           </a>
@@ -448,10 +621,10 @@ function AgentCard({
 
   return (
     <div
-      className={`relative bg-white rounded-2xl border p-4 w-52 min-h-[140px] transition-all duration-300 cursor-pointer hover:-translate-y-1 hover:shadow-md overflow-hidden ${
+      className={`relative bg-[#111111] rounded-2xl border p-4 w-52 min-h-[140px] transition-all duration-300 cursor-pointer hover:-translate-y-1 hover:shadow-md overflow-hidden ${
         isRunning
           ? `${colors.border} shadow-lg ${colors.glow} border-2`
-          : "border-[#E0D9C8]"
+          : "border-[#2A2A2A]"
       } ${isDone ? "opacity-90" : ""}`}
       style={{ borderLeft: `4px solid ${colors.leftColor}` }}
     >
@@ -482,11 +655,11 @@ function AgentCard({
       </div>
 
       {/* Info */}
-      <p className="font-bold text-base text-gray-900">{agent.name}</p>
+      <p className="font-bold text-base text-white">{agent.name}</p>
       <p className="font-mono text-[10px] uppercase text-gray-400 tracking-wider mt-0.5">
         {agent.role}
       </p>
-      <p className="text-xs text-gray-500 mt-2 leading-relaxed line-clamp-2">
+      <p className="text-xs text-gray-400 mt-2 leading-relaxed line-clamp-2">
         {agent.description}
       </p>
 

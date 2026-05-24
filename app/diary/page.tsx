@@ -259,14 +259,14 @@ function FolderTabs({
   onSelect: (t: "dashboard" | "about") => void;
 }) {
   return (
-    <div className="flex items-end gap-1 border-b border-[#E0D9C8]">
+    <div className="flex items-end gap-1 border-b border-[#2A2A2A]">
       <button
         id="tab-dashboard"
         onClick={() => onSelect("dashboard")}
         className={
           activeTab === "dashboard"
-            ? "bg-white border-x border-t border-[#E0D9C8] -mb-px px-5 py-2.5 rounded-t-lg text-sm font-medium text-[#2a2a2a]"
-            : "bg-[#E8E0CC] text-gray-600 hover:bg-[#DDD4BE] px-5 py-2.5 rounded-t-lg text-sm transition-colors"
+            ? "bg-[#111111] border-x border-t border-[#2A2A2A] -mb-px px-5 py-2.5 rounded-t-lg text-sm font-medium text-white"
+            : "bg-[#1F1F00] text-gray-300 hover:bg-[#2A2A2A] px-5 py-2.5 rounded-t-lg text-sm transition-colors"
         }
       >
         Dashboard
@@ -276,8 +276,8 @@ function FolderTabs({
         onClick={() => onSelect("about")}
         className={
           activeTab === "about"
-            ? "bg-white border-x border-t border-[#E0D9C8] -mb-px px-5 py-2.5 rounded-t-lg text-sm font-medium text-[#2a2a2a]"
-            : "bg-[#E8E0CC] text-gray-600 hover:bg-[#DDD4BE] px-5 py-2.5 rounded-t-lg text-sm transition-colors"
+            ? "bg-[#111111] border-x border-t border-[#2A2A2A] -mb-px px-5 py-2.5 rounded-t-lg text-sm font-medium text-white"
+            : "bg-[#1F1F00] text-gray-300 hover:bg-[#2A2A2A] px-5 py-2.5 rounded-t-lg text-sm transition-colors"
         }
       >
         About Nick
@@ -341,11 +341,11 @@ function PageHeader() {
           Nick&apos;s Portfolio
           <span className="text-xl text-gray-400 ml-3 font-normal">Yim&apos;s Diary</span>
         </h1>
-        <p className="text-sm text-gray-500 mt-1">
+        <p className="text-sm text-gray-400 mt-1">
           Blinded $10K paper portfolio · Nick Sleep-style discipline
         </p>
       </div>
-      <div className="text-right font-mono text-xs text-gray-500 space-y-0.5">
+      <div className="text-right font-mono text-xs text-gray-400 space-y-0.5">
         <div>Inception 2026-04-17</div>
         <div>Last updated 2026-05-06</div>
         <div>2 weekly snapshots logged</div>
@@ -370,7 +370,7 @@ function StatsBar({ prices, priceLoading }: { prices: PriceMap; priceLoading: bo
   const today = new Date().toISOString().slice(0, 10);
 
   return (
-    <div id="dashboard-stats" className="bg-[#4a5c3f] text-white rounded-xl p-6 my-6 grid grid-cols-2 md:grid-cols-5 gap-6 scroll-mt-6">
+    <div id="dashboard-stats" className="bg-[#F5C518] text-black rounded-xl p-6 my-6 grid grid-cols-2 md:grid-cols-5 gap-6 scroll-mt-6">
       <div>
         <div className="text-xs opacity-50 font-mono">{today}</div>
         <div className="text-3xl font-bold mt-1">{today}</div>
@@ -419,13 +419,13 @@ function TimelineSlider({
   const progressPct = (activeSnapshot / (SNAPSHOTS.length - 1)) * 100;
 
   return (
-    <div className="bg-white border border-[#E0D9C8] rounded-xl p-5">
+    <div className="bg-[#111111] border border-[#2A2A2A] rounded-xl p-5">
       <p className="font-mono text-xs text-gray-400 tracking-widest mb-3">TIMELINE</p>
 
       <div className="relative h-3">
-        <div className="absolute top-1/2 left-0 right-0 -translate-y-1/2 h-0.5 bg-[#E0D9C8]" />
+        <div className="absolute top-1/2 left-0 right-0 -translate-y-1/2 h-0.5 bg-[#2A2A2A]" />
         <div
-          className="absolute top-1/2 left-0 -translate-y-1/2 h-0.5 bg-[#4a5c3f] transition-all"
+          className="absolute top-1/2 left-0 -translate-y-1/2 h-0.5 bg-[#F5C518] transition-all"
           style={{ width: `${progressPct}%` }}
         />
         {SNAPSHOTS.map((_, i) => {
@@ -435,7 +435,7 @@ function TimelineSlider({
               key={i}
               onClick={() => onSelect(i)}
               aria-label={`Snapshot ${i + 1}`}
-              className="absolute top-1/2 -translate-x-1/2 -translate-y-1/2 w-3 h-3 rounded-full bg-[#4a5c3f] hover:scale-125 transition-transform"
+              className="absolute top-1/2 -translate-x-1/2 -translate-y-1/2 w-3 h-3 rounded-full bg-[#F5C518] hover:scale-125 transition-transform"
               style={{ left: `${left}%` }}
             />
           );
@@ -449,8 +449,8 @@ function TimelineSlider({
             onClick={() => onSelect(i)}
             className={
               i === activeSnapshot
-                ? "bg-[#4a5c3f] text-white px-4 py-1.5 rounded-full text-sm font-mono"
-                : "border border-[#E0D9C8] text-gray-600 px-4 py-1.5 rounded-full text-sm font-mono hover:bg-[#F5F0E8] transition-colors"
+                ? "bg-[#F5C518] text-black px-4 py-1.5 rounded-full text-sm font-mono"
+                : "border border-[#2A2A2A] text-gray-300 px-4 py-1.5 rounded-full text-sm font-mono hover:bg-[#1F1F00] transition-colors"
             }
           >
             {s.date} · {s.label}
@@ -486,7 +486,7 @@ function PerformanceChart({
   );
 
   return (
-    <div id="dashboard-performance" className="lg:col-span-3 bg-white border border-[#E0D9C8] rounded-xl p-5 scroll-mt-6">
+    <div id="dashboard-performance" className="lg:col-span-3 bg-[#111111] border border-[#2A2A2A] rounded-xl p-5 scroll-mt-6">
       <p className="font-mono text-xs text-gray-400 tracking-widest">PERFORMANCE VS BENCHMARK</p>
       <h2 className="text-xl font-bold mt-1">Cumulative return since inception</h2>
 
@@ -499,8 +499,8 @@ function PerformanceChart({
               onClick={() => toggleBenchmark(b.key)}
               className={
                 active
-                  ? "bg-[#4a5c3f] text-white px-3 py-1 rounded-full text-xs font-mono"
-                  : "border border-[#E0D9C8] text-gray-600 px-3 py-1 rounded-full text-xs font-mono hover:bg-[#F5F0E8] transition-colors"
+                  ? "bg-[#F5C518] text-black px-3 py-1 rounded-full text-xs font-mono"
+                  : "border border-[#2A2A2A] text-gray-300 px-3 py-1 rounded-full text-xs font-mono hover:bg-[#1F1F00] transition-colors"
               }
             >
               {b.label} <span className="opacity-70">{b.sub}</span>
@@ -612,11 +612,11 @@ function PerformanceChart({
         </ResponsiveContainer>
       </div>
 
-      <div className="flex flex-wrap gap-4 text-xs text-gray-500 font-mono mt-3">
+      <div className="flex flex-wrap gap-4 text-xs text-gray-400 font-mono mt-3">
         <span>— Nick NAV</span>
         <span>·· SPY · S&amp;P 500</span>
         <span className="inline-flex items-center gap-1">
-          <span className="inline-block w-3 h-2 bg-[#D4B98C] opacity-60 rounded-sm" /> Relative gap
+          <span className="inline-block w-3 h-2 bg-[#F5C518] opacity-60 rounded-sm" /> Relative gap
         </span>
       </div>
 
@@ -652,7 +652,7 @@ function RecommendedActions() {
   ];
 
   return (
-    <div id="dashboard-actions" className="lg:col-span-2 bg-white border border-[#E0D9C8] rounded-xl p-5 scroll-mt-6">
+    <div id="dashboard-actions" className="lg:col-span-2 bg-[#111111] border border-[#2A2A2A] rounded-xl p-5 scroll-mt-6">
       <p className="font-mono text-xs text-gray-400 tracking-widest">RECOMMENDED ACTIONS</p>
       <h2 className="text-lg font-bold mt-1">No actions this week — hold all positions</h2>
       <span className="bg-emerald-100 text-emerald-700 rounded-full px-3 py-1 text-xs inline-block mt-3 mb-4 font-mono">
@@ -661,9 +661,9 @@ function RecommendedActions() {
 
       <div className="space-y-3">
         {cards.map((c) => (
-          <div key={c.head} className="bg-[#F8F5EE] border border-[#E0D9C8] rounded-lg p-4">
-            <div className="font-bold text-sm">{c.head}</div>
-            <div className="text-xs text-gray-600 leading-relaxed mt-2">{c.body}</div>
+          <div key={c.head} className="bg-[#1A1A1A] border border-[#2A2A2A] rounded-lg p-4">
+            <div className="font-semibold text-sm text-white">{c.head}</div>
+            <div className="text-xs text-gray-300 leading-relaxed mt-2">{c.body}</div>
           </div>
         ))}
       </div>
@@ -716,7 +716,7 @@ function HoldingsSection({
       </div>
 
       {selectedHolding && (
-        <div className="mt-6 bg-white border border-[#E0D9C8] rounded-2xl p-5">
+        <div className="mt-6 bg-[#111111] border border-[#2A2A2A] rounded-2xl p-5">
           <div className="flex items-center justify-between mb-4">
             <div>
               <p className="font-mono text-xs text-gray-400 tracking-widest">PRICE CHART</p>
@@ -728,7 +728,7 @@ function HoldingsSection({
               {["1D", "1W", "1M", "3M", "1Y"].map((period) => (
                 <button
                   key={period}
-                  className="px-3 py-1 text-xs font-mono border border-[#E0D9C8] rounded-lg hover:bg-[#F5F0E8] transition-colors"
+                  className="px-3 py-1 text-xs font-mono border border-[#2A2A2A] rounded-lg hover:bg-[#1F1F00] transition-colors"
                 >
                   {period}
                 </button>
@@ -757,11 +757,11 @@ function HoldingsTable({
   priceLoading: boolean;
 }) {
   return (
-    <div className="bg-white border border-[#E0D9C8] rounded-xl overflow-hidden">
+    <div className="bg-[#111111] border border-[#2A2A2A] rounded-xl overflow-hidden">
       <div className="overflow-x-auto">
         <table className="w-full text-sm">
           <thead>
-            <tr className="bg-[#F8F5EE] border-b border-[#E0D9C8] text-xs text-gray-500 font-mono tracking-wider uppercase">
+            <tr className="bg-[#1A1A1A] border-b border-[#2A2A2A] text-xs text-gray-400 font-mono tracking-wider uppercase">
               <th className="px-4 py-3 text-left">Ticker</th>
               <th className="px-4 py-3 text-left">Status</th>
               <th className="px-4 py-3 text-right">Shares</th>
@@ -788,13 +788,13 @@ function HoldingsTable({
                   onClick={() => onSelect(h.ticker)}
                   className={
                     selected
-                      ? "bg-[#EEE8D8] border-l-4 border-l-[#4a5c3f] cursor-pointer transition-colors border-b border-b-[#F0E8D8]"
-                      : "hover:bg-[#F5F0E8] cursor-pointer transition-colors border-b border-[#F0E8D8]"
+                      ? "bg-[#1A1A1A] border-l-4 border-l-[#F5C518] cursor-pointer transition-colors border-b border-b-[#2A2A2A]"
+                      : "hover:bg-[#1F1F00] cursor-pointer transition-colors border-b border-[#2A2A2A]"
                   }
                 >
                   <td className="px-4 py-3">
                     <div className="font-bold">{h.ticker}</div>
-                    <div className="text-xs text-gray-500">{h.company}</div>
+                    <div className="text-xs text-gray-400">{h.company}</div>
                   </td>
                   <td className="px-4 py-3">
                     <span className="bg-emerald-100 text-emerald-700 rounded-full px-2 py-0.5 text-xs font-mono">
@@ -828,9 +828,9 @@ function HoldingsTable({
                   </td>
                   <td className="px-4 py-3">
                     <div className="flex items-center gap-2 mb-1">
-                      <div className="w-16 h-1.5 bg-[#E0D9C8] rounded-full overflow-hidden">
+                      <div className="w-16 h-1.5 bg-[#2A2A2A] rounded-full overflow-hidden">
                         <div
-                          className="h-full bg-[#4a5c3f] rounded-full"
+                          className="h-full bg-[#F5C518] rounded-full"
                           style={{ width: `${Math.min(h.weight * 4, 100)}%` }}
                         />
                       </div>
@@ -871,26 +871,26 @@ function ThesisPanel({ ticker, onClose }: { ticker: string; onClose: () => void 
   if (!t || !h) return null;
 
   return (
-    <div className="bg-white border border-[#E0D9C8] rounded-xl p-5 sticky top-4 animate-[fadeIn_0.2s_ease-out]">
+    <div className="bg-[#111111] border border-[#2A2A2A] rounded-xl p-5 sticky top-4 animate-[fadeIn_0.2s_ease-out]">
       <div className="flex items-start justify-between">
         <p className="font-mono text-xs text-gray-400 tracking-widest">THESIS &amp; KILL CONDITIONS</p>
         <button
           onClick={onClose}
           aria-label="Close thesis panel"
-          className="text-gray-400 hover:text-[#2a2a2a] transition-colors"
+          className="text-gray-400 hover:text-white transition-colors"
         >
           <X className="h-4 w-4" />
         </button>
       </div>
 
       <div className="mt-3">
-        <div className="text-xs text-gray-500">{h.company}</div>
+        <div className="text-xs text-gray-400">{h.company}</div>
         <div className="text-4xl font-bold mt-1">{ticker}</div>
         <div className="flex items-center gap-3 mt-2">
           <span className="bg-emerald-100 text-emerald-700 rounded-full px-2 py-0.5 text-xs font-mono">
             ● intact
           </span>
-          <span className="font-mono text-xs text-gray-500">
+          <span className="font-mono text-xs text-gray-400">
             {t.weight} · {t.horizon}
           </span>
         </div>
@@ -899,12 +899,12 @@ function ThesisPanel({ ticker, onClose }: { ticker: string; onClose: () => void 
       <div className="space-y-4 mt-5">
         <div>
           <p className="font-mono text-xs text-gray-400 tracking-widest">THIS SNAPSHOT</p>
-          <p className="italic text-sm text-gray-600 mt-1.5">{t.snapshot}</p>
+          <p className="italic text-sm text-gray-300 mt-1.5">{t.snapshot}</p>
         </div>
 
         <div>
           <p className="font-mono text-xs text-gray-400 tracking-widest">ORIGINAL THESIS</p>
-          <p className="text-sm leading-relaxed text-gray-700 mt-1.5">{t.thesis}</p>
+          <p className="text-sm leading-relaxed text-gray-300 mt-1.5">{t.thesis}</p>
         </div>
 
         <div>
@@ -912,10 +912,10 @@ function ThesisPanel({ ticker, onClose }: { ticker: string; onClose: () => void 
           {t.killConditions.map((kc, i) => (
             <div
               key={i}
-              className="border border-[#E0D9C8] rounded-lg p-3 mb-2 flex gap-2"
+              className="border border-[#2A2A2A] rounded-lg p-3 mb-2 flex gap-2"
             >
-              <span className="text-[#4a5c3f] text-xs leading-relaxed">◎</span>
-              <span className="text-xs text-gray-600 leading-relaxed">{kc}</span>
+              <span className="text-[#F5C518] text-xs leading-relaxed">◎</span>
+              <span className="text-xs text-gray-300 leading-relaxed">{kc}</span>
             </div>
           ))}
         </div>
@@ -928,7 +928,7 @@ function ScreenedSection() {
   const badgeClass = (s: ScreenedStock["status"]) => {
     if (s === "SELECTED") return "bg-emerald-100 text-emerald-700";
     if (s === "DISQUALIFIED") return "bg-red-100 text-red-700";
-    return "bg-gray-100 text-gray-600";
+    return "bg-gray-100 text-gray-700";
   };
 
   return (
@@ -940,7 +940,7 @@ function ScreenedSection() {
         {SCREENED.map((s) => (
           <div
             key={s.ticker}
-            className="flex-shrink-0 w-72 snap-start bg-white border border-[#E0D9C8] rounded-xl p-4 hover:shadow-md transition"
+            className="flex-shrink-0 w-72 snap-start bg-[#111111] border border-[#2A2A2A] rounded-xl p-4 hover:shadow-md transition"
           >
             <div className="flex items-start justify-between">
               <div className="text-lg font-bold">{s.ticker}</div>
@@ -948,7 +948,7 @@ function ScreenedSection() {
                 {s.status}
               </span>
             </div>
-            <p className="text-xs text-gray-600 mt-3 leading-relaxed line-clamp-5">{s.notes}</p>
+            <p className="text-xs text-gray-300 mt-3 leading-relaxed line-clamp-5">{s.notes}</p>
           </div>
         ))}
       </div>
@@ -959,10 +959,10 @@ function ScreenedSection() {
 function ReferencesFooter() {
   return (
     <details className="mt-10 group">
-      <summary className="cursor-pointer font-mono text-xs text-gray-500 tracking-widest hover:text-[#2a2a2a] transition-colors">
+      <summary className="cursor-pointer font-mono text-xs text-gray-400 tracking-widest hover:text-white transition-colors">
         THIS WEEK&apos;S REFERENCES — NONE
       </summary>
-      <p className="mt-2 text-xs text-gray-500 italic">No references logged this week.</p>
+      <p className="mt-2 text-xs text-gray-400 italic">No references logged this week.</p>
     </details>
   );
 }
@@ -972,12 +972,12 @@ function AboutTab() {
     <div className="pt-8">
       <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
         <div id="about-profile" className="lg:col-span-1 scroll-mt-6">
-          <div className="bg-white border border-[#E0D9C8] rounded-xl p-4">
+          <div className="bg-[#111111] border border-[#2A2A2A] rounded-xl p-4">
             {/* eslint-disable-next-line @next/next/no-img-element */}
             <img
               src="https://api.dicebear.com/7.x/notionists/svg?seed=nick-portfolio&backgroundColor=ffd89b"
               alt="Nick avatar"
-              className="w-full aspect-square rounded-xl object-cover bg-[#F5F0E8]"
+              className="w-full aspect-square rounded-xl object-cover bg-[#1F1F00]"
             />
             <div className="text-2xl font-bold text-center mt-3">Nick</div>
             <div className="font-mono text-xs text-gray-400 text-center mt-1 tracking-wider">
@@ -987,20 +987,20 @@ function AboutTab() {
         </div>
 
         <div id="about-bio" className="lg:col-span-3 scroll-mt-6">
-          <div className="bg-white border border-[#E0D9C8] rounded-xl p-6">
+          <div className="bg-[#111111] border border-[#2A2A2A] rounded-xl p-6">
             <h2 className="text-2xl font-bold">Who Nick is</h2>
-            <p className="mt-3 text-sm text-gray-700 leading-relaxed">
+            <p className="mt-3 text-sm text-gray-300 leading-relaxed">
               Nick is the agent who runs Yim&apos;s blinded $10,000 USD paper portfolio. He&apos;s named after Nick Sleep of the Nomad Investment Partnership — a fund manager famous for owning a tiny number of businesses for very long periods, doing nothing most of the time, and writing in plain language about why.
             </p>
-            <p className="mt-2 text-sm text-gray-700 leading-relaxed">
+            <p className="mt-2 text-sm text-gray-300 leading-relaxed">
               Patient. Conviction over activity. Reads filings end-to-end. Writes a kill condition for every position before he buys. When he doesn&apos;t know, he says so.
             </p>
-            <blockquote className="border-l-4 border-amber-400 pl-4 italic text-gray-600 my-4 bg-amber-50 py-3 rounded-r text-sm">
+            <blockquote className="border-l-4 border-amber-400 pl-4 italic text-gray-900 my-4 bg-amber-50 py-3 rounded-r text-sm">
               &ldquo;Investing is the ownership of businesses, not the trading of tickers. Turnover is a signal of a broken process, not a working one.&rdquo;
             </blockquote>
 
             <h2 className="text-2xl font-bold mt-6">The blindness rule</h2>
-            <p className="mt-2 text-sm text-gray-700 leading-relaxed">
+            <p className="mt-2 text-sm text-gray-300 leading-relaxed">
               Nick does not know what Yim actually owns. The point of the experiment is to stress-test Yim&apos;s investing philosophy as an independent system. Nick reads the same knowledge base — theses, research, contradictions — but is forbidden from any file that names Yim&apos;s holdings. When Nick independently picks a stock Yim already owns, that&apos;s a strong signal. When he diverges, that&apos;s the content goldmine.
             </p>
           </div>
@@ -1073,7 +1073,7 @@ function AboutTab() {
         </InfoCard>
       </div>
 
-      <footer className="border-t border-[#E0D9C8] pt-4 mt-8 flex flex-col sm:flex-row justify-between gap-2 font-mono text-xs text-gray-400">
+      <footer className="border-t border-[#2A2A2A] pt-4 mt-8 flex flex-col sm:flex-row justify-between gap-2 font-mono text-xs text-gray-500">
         <span>Nick = blinded paper portfolio agent · Source of truth: Output/Nick/</span>
         <span>Dashboard built 2026-05-06</span>
       </footer>
@@ -1083,9 +1083,9 @@ function AboutTab() {
 
 function InfoCard({ title, children }: { title: string; children: React.ReactNode }) {
   return (
-    <div className="bg-white border border-[#E0D9C8] rounded-xl p-5">
+    <div className="bg-[#111111] border border-[#2A2A2A] rounded-xl p-5">
       <h3 className="text-base font-bold mb-3">{title}</h3>
-      <ul className="space-y-2 text-sm text-gray-700">{children}</ul>
+      <ul className="space-y-2 text-sm text-gray-300">{children}</ul>
     </div>
   );
 }
@@ -1093,8 +1093,8 @@ function InfoCard({ title, children }: { title: string; children: React.ReactNod
 function Bullet({ bold, rest }: { bold: string; rest: string }) {
   return (
     <li className="leading-relaxed">
-      <strong className="text-[#2a2a2a]">{bold}</strong>
-      <span className="text-gray-600">{rest}</span>
+      <strong className="text-white">{bold}</strong>
+      <span className="text-gray-300">{rest}</span>
     </li>
   );
 }
@@ -1103,7 +1103,7 @@ function CommandBlock({ cmd, children }: { cmd: string; children: React.ReactNod
   return (
     <div>
       <code className="font-mono bg-gray-800 text-white px-2 py-1 rounded text-xs">{cmd}</code>
-      <p className="text-xs text-gray-600 leading-relaxed mt-1.5">{children}</p>
+      <p className="text-xs text-gray-300 leading-relaxed mt-1.5">{children}</p>
     </div>
   );
 }

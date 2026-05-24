@@ -13,15 +13,19 @@ import {
   AtSign,
   Globe,
   Mail,
+  Brain,
+  TrendingUp,
 } from "lucide-react";
 import { useNewsOutline } from "@/lib/news-outline-context";
 
 const NAV_ITEMS = [
   { href: "/", label: "Home", icon: Home },
   { href: "/diary", label: "Diary", icon: BookOpen },
+  { href: "/trading", label: "Trading", icon: TrendingUp },
   { href: "/news", label: "News", icon: Newspaper },
   { href: "/substack", label: "Substack", icon: FileText },
   { href: "/ai", label: "AI", icon: Sparkles },
+  { href: "/knowledge", label: "Knowledge", icon: Brain },
   { href: "/team", label: "Team", icon: Users },
 ] as const;
 
@@ -32,18 +36,18 @@ export default function Sidebar() {
   const { items: newsOutline } = useNewsOutline();
 
   return (
-    <aside className="w-64 flex-shrink-0 h-screen sticky top-0 border-r border-[#E0D9C8] bg-[#F2EDE3] flex flex-col">
+    <aside className="w-64 flex-shrink-0 h-screen sticky top-0 border-r border-[#2A2A2A] bg-[#0A0A0A] flex flex-col">
       <div className="px-4 py-5 flex items-center gap-2">
-        <div className="h-8 w-8 rounded-full bg-[#4a5c3f] flex-shrink-0 flex items-center justify-center">
-          <Sparkles className="h-4 w-4 text-white" />
+        <div className="h-8 w-8 rounded-full bg-[#F5C518] flex-shrink-0 flex items-center justify-center">
+          <Sparkles className="h-4 w-4 text-black" />
         </div>
-        <span className="font-bold text-lg text-[#2a2a2a] leading-none tracking-tight">
+        <span className="font-bold text-lg text-white leading-none tracking-tight">
           AI Studio
         </span>
         <button
           type="button"
           aria-label="Collapse sidebar"
-          className="ml-auto text-[#888] hover:text-[#2a2a2a] text-lg leading-none"
+          className="ml-auto text-[#888] hover:text-white text-lg leading-none"
         >
           <ChevronsLeft className="h-4 w-4" />
         </button>
@@ -63,8 +67,8 @@ export default function Sidebar() {
                   href={href}
                   className={
                     active
-                      ? "flex items-center gap-3 px-3 py-2 rounded-lg bg-[#5a7a4a] text-white text-sm font-medium"
-                      : "flex items-center gap-3 px-3 py-2 rounded-lg text-gray-700 hover:bg-[#E8E0CC] text-sm transition-colors"
+                      ? "flex items-center gap-3 px-3 py-2 rounded-lg bg-[#F5C518] text-black text-sm font-medium"
+                      : "flex items-center gap-3 px-3 py-2 rounded-lg text-gray-300 hover:bg-[#1F1F00] hover:text-white text-sm transition-colors"
                   }
                 >
                   <Icon className="h-4 w-4 flex-shrink-0" />
@@ -94,7 +98,7 @@ export default function Sidebar() {
                 <li key={href}>
                   <a
                     href={href}
-                    className="block px-3 py-1.5 rounded-md text-xs text-gray-600 hover:bg-[#E8E0CC] hover:text-[#2a2a2a] transition-colors"
+                    className="block px-3 py-1.5 rounded-md text-xs text-gray-300 hover:bg-[#1F1F00] hover:text-white transition-colors"
                   >
                     {label}
                   </a>
@@ -108,19 +112,19 @@ export default function Sidebar() {
       <div className="mt-auto px-4 pb-5 pt-4 space-y-3">
         <button
           type="button"
-          className="w-full bg-amber-400 hover:bg-amber-500 text-[#2a2a2a] text-sm font-semibold rounded-full py-2 transition-colors"
+          className="w-full bg-[#F5C518] hover:bg-[#F0B800] text-black text-sm font-semibold rounded-full py-2 transition-colors"
         >
           Join membership
         </button>
 
         <div className="flex items-center justify-center gap-3 text-[#888]">
-          <a href="#" aria-label="Twitter / X" className="hover:text-[#2a2a2a] transition-colors">
+          <a href="#" aria-label="Twitter / X" className="hover:text-white transition-colors">
             <AtSign className="h-4 w-4" />
           </a>
-          <a href="#" aria-label="Website" className="hover:text-[#2a2a2a] transition-colors">
+          <a href="#" aria-label="Website" className="hover:text-white transition-colors">
             <Globe className="h-4 w-4" />
           </a>
-          <a href="#" aria-label="Email" className="hover:text-[#2a2a2a] transition-colors">
+          <a href="#" aria-label="Email" className="hover:text-white transition-colors">
             <Mail className="h-4 w-4" />
           </a>
         </div>

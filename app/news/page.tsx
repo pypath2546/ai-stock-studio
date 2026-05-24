@@ -84,15 +84,15 @@ export default function NewsPage() {
       {/* Header */}
       <div className="flex items-start justify-between mb-8">
         <div>
-          <h1 className="text-5xl font-bold text-gray-900">Tech &amp; Finance News</h1>
-          <p className="text-sm font-mono text-gray-500 mt-2">
+          <h1 className="text-5xl font-bold text-white">Tech &amp; Finance News</h1>
+          <p className="text-sm font-mono text-gray-400 mt-2">
             {data ? `Updated ${timeAgo(data.fetchedAt)}` : 'Loading...'}
           </p>
         </div>
         <button
           onClick={fetchNews}
           disabled={loading}
-          className="flex items-center gap-2 px-4 py-2 rounded-lg border border-[#E0D9C8] bg-white hover:bg-[#F2EDE3] disabled:opacity-50 transition-all"
+          className="flex items-center gap-2 px-4 py-2 rounded-lg border border-[#2A2A2A] bg-[#111111] hover:bg-[#0A0A0A] disabled:opacity-50 transition-all"
         >
           <RefreshCw className={`w-4 h-4 ${loading ? 'animate-spin' : ''}`} />
           <span className="text-sm font-medium">Refresh</span>
@@ -115,8 +115,8 @@ export default function NewsPage() {
               onClick={() => setActiveCategory(tab.id)}
               className={`flex items-center gap-1.5 px-4 py-1.5 rounded-full text-sm font-medium transition-all ${
                 isActive
-                  ? 'bg-[#4a5c3f] text-white'
-                  : 'border border-[#E0D9C8] text-gray-600 hover:bg-[#F2EDE3]'
+                  ? 'bg-[#F5C518] text-black'
+                  : 'border border-[#2A2A2A] text-gray-300 hover:bg-[#0A0A0A]'
               }`}
             >
               {Icon && <Icon className="w-3.5 h-3.5" />}
@@ -130,7 +130,7 @@ export default function NewsPage() {
       {loading && (
         <div className="space-y-4">
           {[1,2,3,4,5].map(i => (
-            <div key={i} className="bg-white rounded-2xl border border-[#E0D9C8] p-4 flex gap-4 animate-pulse">
+            <div key={i} className="bg-[#111111] rounded-2xl border border-[#2A2A2A] p-4 flex gap-4 animate-pulse">
               <div className="w-24 h-24 bg-gray-200 rounded-xl shrink-0" />
               <div className="flex-1 space-y-2 py-1">
                 <div className="h-3 bg-gray-200 rounded w-1/4" />
@@ -146,10 +146,10 @@ export default function NewsPage() {
       {/* Error */}
       {error && !loading && (
         <div className="text-center py-20">
-          <p className="text-gray-500 text-lg">ไม่สามารถโหลดข่าวได้</p>
+          <p className="text-gray-400 text-lg">ไม่สามารถโหลดข่าวได้</p>
           <button
             onClick={fetchNews}
-            className="mt-4 px-6 py-2 bg-[#4a5c3f] text-white rounded-lg hover:bg-[#5a7a4a]"
+            className="mt-4 px-6 py-2 bg-[#F5C518] text-black rounded-lg hover:bg-[#F0B800]"
           >
             ลองใหม่
           </button>
@@ -158,18 +158,18 @@ export default function NewsPage() {
 
       {/* Timeline */}
       {!loading && !error && (
-        <div className="relative border-l-2 border-dotted border-[#C8BFB0] ml-1.5">
+        <div className="relative border-l-2 border-dotted border-[#2A2A2A] ml-1.5">
           {sortedDates.map(date => (
             <section key={date} id={`date-${date}`} className="mb-14 pl-8">
 
               {/* Date marker */}
               <div className="flex items-center gap-3 mb-6 -ml-[41px]">
-                <div className="w-4 h-4 rounded-full bg-[#4a5c3f] border-4 border-[#F2EDE3] shrink-0" />
+                <div className="w-4 h-4 rounded-full bg-[#F5C518] border-4 border-[#F2EDE3] shrink-0" />
                 <div>
-                  <h2 className="text-3xl font-bold text-gray-900">
+                  <h2 className="text-3xl font-bold text-white">
                     {toThaiDate(date)}
                   </h2>
-                  <p className="text-xs font-mono text-gray-500 mt-0.5">
+                  <p className="text-xs font-mono text-gray-400 mt-0.5">
                     {date} · {grouped[date].length} บทความ
                   </p>
                 </div>
@@ -183,7 +183,7 @@ export default function NewsPage() {
                   return (
                     <article
                       key={id}
-                      className="bg-white rounded-2xl border border-[#E0D9C8] p-4 hover:shadow-md hover:-translate-y-0.5 transition-all flex gap-4 cursor-pointer"
+                      className="bg-[#111111] rounded-2xl border border-[#2A2A2A] p-4 hover:bg-[#1A1A00] hover:border-[#F5C518]/30 hover:-translate-y-0.5 transition-all flex gap-4 cursor-pointer"
                       onClick={() => setExpandedId(expanded ? null : id)}
                     >
                       {/* Image or Logo */}
@@ -222,14 +222,14 @@ export default function NewsPage() {
                           onClick={e => e.stopPropagation()}
                           className="group block"
                         >
-                          <h3 className="font-semibold text-base text-gray-900 group-hover:text-[#4a5c3f] line-clamp-2 leading-snug">
+                          <h3 className="font-semibold text-base text-white group-hover:text-[#F5C518] line-clamp-2 leading-snug">
                             {article.title}
                             <ExternalLink className="inline ml-1 w-3 h-3 opacity-40 align-baseline" />
                           </h3>
                         </a>
 
                         {expanded && article.description && (
-                          <p className="text-sm text-gray-600 mt-2 leading-relaxed">
+                          <p className="text-sm text-gray-300 mt-2 leading-relaxed">
                             {article.description}
                           </p>
                         )}

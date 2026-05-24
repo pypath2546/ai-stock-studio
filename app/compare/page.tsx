@@ -6,19 +6,19 @@ import Link from "next/link";
 import { api, CompareItem } from "@/lib/api";
 
 function Cell({ value, positive }: { value: string | number | null | undefined; positive?: boolean }) {
-  if (value == null) return <td className="py-3 px-4 text-gray-500 text-right">—</td>;
+  if (value == null) return <td className="py-3 px-4 text-gray-400 text-right">—</td>;
   const color = positive === true ? "text-green-400" : positive === false ? "text-red-400" : "text-gray-200";
   return <td className={`py-3 px-4 text-right ${color}`}>{value}</td>;
 }
 
 function RsiCell({ rsi }: { rsi?: number | null }) {
-  if (rsi == null) return <td className="py-3 px-4 text-gray-500 text-right">—</td>;
+  if (rsi == null) return <td className="py-3 px-4 text-gray-400 text-right">—</td>;
   const color = rsi < 30 ? "text-green-400" : rsi > 70 ? "text-red-400" : "text-gray-200";
   return <td className={`py-3 px-4 text-right ${color}`}>{rsi}</td>;
 }
 
 function TrendCell({ trend }: { trend?: string }) {
-  if (!trend || trend === "N/A") return <td className="py-3 px-4 text-gray-500 text-right">—</td>;
+  if (!trend || trend === "N/A") return <td className="py-3 px-4 text-gray-400 text-right">—</td>;
   const color = trend === "Uptrend" ? "text-green-400" : "text-red-400";
   return <td className={`py-3 px-4 text-right ${color}`}>{trend}</td>;
 }
@@ -57,7 +57,7 @@ function ComparePageInner() {
 
       <div className="flex flex-wrap gap-2 items-end">
         <div className="space-y-1">
-          <label className="text-xs text-gray-500">Base symbol</label>
+          <label className="text-xs text-gray-400">Base symbol</label>
           <input
             value={base}
             onChange={(e) => setBase(e.target.value)}
@@ -65,7 +65,7 @@ function ComparePageInner() {
           />
         </div>
         <div className="space-y-1 flex-1">
-          <label className="text-xs text-gray-500">Compare with (comma-separated)</label>
+          <label className="text-xs text-gray-400">Compare with (comma-separated)</label>
           <input
             value={others}
             onChange={(e) => setOthers(e.target.value)}
@@ -88,7 +88,7 @@ function ComparePageInner() {
         <div className="overflow-x-auto">
           <table className="w-full text-sm">
             <thead>
-              <tr className="border-b border-gray-800 text-xs text-gray-500">
+              <tr className="border-b border-gray-800 text-xs text-gray-400">
                 <th className="pb-3 px-4 text-left">Symbol</th>
                 <th className="pb-3 px-4 text-right">Price</th>
                 <th className="pb-3 px-4 text-right">6mo Return</th>
@@ -104,7 +104,7 @@ function ComparePageInner() {
                 <tr key={row.symbol} className="hover:bg-gray-900/50 transition-colors">
                   <td className="py-3 px-4 font-medium">
                     {row.error ? (
-                      <span className="text-gray-500">{row.symbol}</span>
+                      <span className="text-gray-400">{row.symbol}</span>
                     ) : (
                       <Link href={`/stock/${row.symbol}`} className="text-blue-400 hover:underline">
                         {row.symbol}

@@ -7,13 +7,13 @@ import { api, WatchlistItem } from "@/lib/api";
 const DEFAULT_SYMBOLS = "AAPL,MSFT,GOOGL,TSLA,NVDA";
 
 function RsiBadge({ rsi }: { rsi: number | null | undefined }) {
-  if (rsi == null) return <span className="text-gray-500">—</span>;
+  if (rsi == null) return <span className="text-gray-400">—</span>;
   const color = rsi < 30 ? "text-green-400" : rsi > 70 ? "text-red-400" : "text-gray-300";
   return <span className={color}>{rsi}</span>;
 }
 
 function ChangeCell({ pct }: { pct: number | null | undefined }) {
-  if (pct == null) return <span className="text-gray-500">—</span>;
+  if (pct == null) return <span className="text-gray-400">—</span>;
   const color = pct >= 0 ? "text-green-400" : "text-red-400";
   return <span className={color}>{pct >= 0 ? "+" : ""}{pct.toFixed(2)}%</span>;
 }
@@ -66,14 +66,14 @@ export default function WatchlistPage() {
       {error && <p className="text-red-400 text-sm">{error}</p>}
 
       {updatedAt && (
-        <p className="text-xs text-gray-500">Updated {new Date(updatedAt).toLocaleTimeString()}</p>
+        <p className="text-xs text-gray-400">Updated {new Date(updatedAt).toLocaleTimeString()}</p>
       )}
 
       {items.length > 0 && (
         <div className="overflow-x-auto">
           <table className="w-full text-sm">
             <thead>
-              <tr className="border-b border-gray-800 text-left text-xs text-gray-500">
+              <tr className="border-b border-gray-800 text-left text-xs text-gray-400">
                 <th className="pb-3 pr-4">Symbol</th>
                 <th className="pb-3 pr-4">Name</th>
                 <th className="pb-3 pr-4 text-right">Price</th>
@@ -88,7 +88,7 @@ export default function WatchlistPage() {
                 <tr key={item.symbol} className="hover:bg-gray-900/50 transition-colors">
                   <td className="py-3 pr-4 font-medium">
                     {item.error ? (
-                      <span className="text-gray-500">{item.symbol}</span>
+                      <span className="text-gray-400">{item.symbol}</span>
                     ) : (
                       <Link href={`/stock/${item.symbol}`} className="text-blue-400 hover:underline">
                         {item.symbol}

@@ -119,7 +119,7 @@ export function SignalChip({ label, value, tone }: SignalChipProps) {
     good:    { dot: "bg-green-500",  text: "text-green-700",  bg: "bg-green-50",  border: "border-green-200" },
     warn:    { dot: "bg-amber-500",  text: "text-amber-700",  bg: "bg-amber-50",  border: "border-amber-200" },
     bad:     { dot: "bg-red-500",    text: "text-red-700",    bg: "bg-red-50",    border: "border-red-200"   },
-    neutral: { dot: "bg-gray-400",   text: "text-gray-600",   bg: "bg-gray-50",   border: "border-gray-200"  },
+    neutral: { dot: "bg-gray-400",   text: "text-gray-700",   bg: "bg-gray-50",   border: "border-gray-200"  },
   }[tone];
 
   return (
@@ -151,7 +151,7 @@ function StatusDot({ status, dotClass }: { status: AgentStatus; dotClass: string
     );
   }
   if (status === "done") return <CheckCircle2 className="h-3.5 w-3.5 text-green-600" />;
-  return <span className="h-2 w-2 rounded-full bg-[#D5CEC0]" />;
+  return <span className="h-2 w-2 rounded-full bg-[#2A2A2A]" />;
 }
 
 // ─── AgentCard (compact, white, with status + running animation) ─────────────
@@ -175,7 +175,7 @@ export function AgentCard({ agent, status }: { agent: Agent; status: AgentStatus
 
   return (
     <div
-      className={`relative bg-white border border-[#E8E0D0] border-l-2 ${cfg.border} rounded-2xl p-4 shadow-sm hover:shadow-md transition-all duration-200 w-full sm:w-[220px] sm:flex-shrink-0 overflow-hidden`}
+      className={`relative bg-[#111111] border border-[#2A2A2A] border-l-2 ${cfg.border} rounded-2xl p-4 shadow-sm hover:shadow-md transition-all duration-200 w-full sm:w-[220px] sm:flex-shrink-0 overflow-hidden`}
       style={glowShadow ? { boxShadow: glowShadow } : undefined}
     >
       {/* Top row: avatar + status */}
@@ -196,14 +196,14 @@ export function AgentCard({ agent, status }: { agent: Agent; status: AgentStatus
       </div>
 
       {/* Name + role + description */}
-      <p className="text-base font-bold text-[#1a1a1a] mt-3 leading-tight">{agent.name}</p>
+      <p className="text-base font-bold text-white mt-3 leading-tight">{agent.name}</p>
       <p className="font-mono text-[10px] uppercase text-gray-400 mt-0.5 tracking-widest">{agent.role}</p>
       {status === "running" ? (
         <p className="text-xs text-amber-700 font-mono mt-1 leading-snug line-clamp-2 animate-pulse">
           {agent.runningLog}
         </p>
       ) : (
-        <p className="text-xs text-gray-500 mt-1 line-clamp-2 leading-snug">{agent.description}</p>
+        <p className="text-xs text-gray-400 mt-1 line-clamp-2 leading-snug">{agent.description}</p>
       )}
 
       {/* Running progress stripe */}
@@ -223,7 +223,7 @@ export function PipelineConnector({ active }: { active: boolean }) {
     <div className="hidden lg:block py-1.5 pl-[88px]">
       <div
         className={`h-4 w-0 border-l border-dashed transition-colors duration-300 ${
-          active ? "border-amber-500" : "border-[#D5CEC0]"
+          active ? "border-amber-500" : "border-[#2A2A2A]"
         }`}
       />
     </div>
@@ -280,36 +280,36 @@ export function WatchlistPanel({
         />
       )}
       <div
-        className={`fixed top-0 right-0 h-full w-80 bg-white border-l border-[#E8E0D0] z-50 flex flex-col shadow-2xl transition-transform duration-300 ease-out ${
+        className={`fixed top-0 right-0 h-full w-80 bg-[#111111] border-l border-[#2A2A2A] z-50 flex flex-col shadow-2xl transition-transform duration-300 ease-out ${
           open ? "translate-x-0" : "translate-x-full"
         }`}
       >
         {/* Header */}
-        <div className="px-5 py-4 border-b border-[#E8E0D0]">
+        <div className="px-5 py-4 border-b border-[#2A2A2A]">
           <div className="flex items-center justify-between mb-3">
             <div>
-              <p className="font-bold text-[#1a1a1a] text-sm">Watchlist</p>
+              <p className="font-bold text-white text-sm">Watchlist</p>
               <p className="font-mono text-[9px] uppercase tracking-widest text-[#999] mt-0.5">
                 {filtered.length} of {stocks.length} symbols {isOffline && "· DEMO"}
               </p>
             </div>
             <button
               onClick={onClose}
-              className="p-1.5 rounded-lg hover:bg-[#F5F0E8] text-[#999] hover:text-[#1a1a1a] transition-colors"
+              className="p-1.5 rounded-lg hover:bg-[#1F1F00] text-[#999] hover:text-white transition-colors"
               aria-label="Close watchlist"
             >
               <X className="h-4 w-4" />
             </button>
           </div>
           {/* Sector filter */}
-          <div className="flex gap-1 p-0.5 bg-[#F5F0E8] rounded-lg">
+          <div className="flex gap-1 p-0.5 bg-[#1F1F00] rounded-lg">
             {SECTOR_FILTER_TABS.map((tab) => (
               <button
                 key={tab}
                 onClick={() => setFilter(tab)}
                 className={`flex-1 font-mono text-[10px] uppercase tracking-widest py-1 rounded-md transition-all duration-150 ${
                   filter === tab
-                    ? "bg-white text-[#1a1a1a] shadow-sm"
+                    ? "bg-[#111111] text-white shadow-sm"
                     : "text-[#888] hover:text-[#444]"
                 }`}
               >
@@ -338,13 +338,13 @@ export function WatchlistPanel({
                   <button
                     key={s.ticker}
                     onClick={() => { onSelect(s.ticker); onClose(); }}
-                    className={`w-full flex items-center justify-between px-5 py-3 text-left transition-colors hover:bg-[#F5F0E8] ${
-                      sel ? "bg-[#F5F0E8] border-l-2 border-l-amber-500 pl-[18px]" : ""
+                    className={`w-full flex items-center justify-between px-5 py-3 text-left transition-colors hover:bg-[#1F1F00] ${
+                      sel ? "bg-[#1F1F00] border-l-2 border-l-amber-500 pl-[18px]" : ""
                     }`}
                   >
                     <div className="min-w-0 flex-1">
                       <div className="flex items-center gap-2">
-                        <p className="font-bold text-sm text-[#1a1a1a]">{s.ticker}</p>
+                        <p className="font-bold text-sm text-white">{s.ticker}</p>
                         <span className="font-mono text-[8px] uppercase tracking-widest text-[#bbb]">
                           {s.sector}
                         </span>
@@ -355,7 +355,7 @@ export function WatchlistPanel({
                       <TickerNumber
                         value={s.price}
                         prefix="$"
-                        className="text-sm font-semibold text-[#1a1a1a]"
+                        className="text-sm font-semibold text-white"
                       />
                       <div className={`flex items-center justify-end gap-0.5 text-[11px] font-medium ${pos ? "text-green-600" : "text-red-500"}`}>
                         {pos ? <ChevronUp className="h-3 w-3" /> : <ChevronDown className="h-3 w-3" />}
@@ -377,12 +377,12 @@ function WatchlistSkeletonRow() {
   return (
     <div className="px-5 py-3 flex items-center justify-between animate-pulse">
       <div className="flex-1 space-y-1.5">
-        <div className="h-3 w-12 bg-[#E8E0D0] rounded" />
-        <div className="h-2.5 w-28 bg-[#F0E9DC] rounded" />
+        <div className="h-3 w-12 bg-[#2A2A2A] rounded" />
+        <div className="h-2.5 w-28 bg-[#1A1A1A] rounded" />
       </div>
       <div className="space-y-1.5 ml-3">
-        <div className="h-3 w-14 bg-[#E8E0D0] rounded ml-auto" />
-        <div className="h-2.5 w-10 bg-[#F0E9DC] rounded ml-auto" />
+        <div className="h-3 w-14 bg-[#2A2A2A] rounded ml-auto" />
+        <div className="h-2.5 w-10 bg-[#1A1A1A] rounded ml-auto" />
       </div>
     </div>
   );
@@ -400,8 +400,8 @@ export function NewsPanel({
 }) {
   if (!ticker) return null;
   return (
-    <div className="bg-white border border-[#E8E0D0] rounded-2xl overflow-hidden shadow-sm">
-      <div className="px-4 py-3 border-b border-[#E8E0D0] flex items-center justify-between">
+    <div className="bg-[#111111] border border-[#2A2A2A] rounded-2xl overflow-hidden shadow-sm">
+      <div className="px-4 py-3 border-b border-[#2A2A2A] flex items-center justify-between">
         <p className="font-mono text-[10px] uppercase tracking-widest text-[#666] font-bold">
           Latest News · {ticker}
         </p>
@@ -426,7 +426,7 @@ export function NewsPanel({
               href={a.link ?? "#"}
               target="_blank"
               rel="noopener noreferrer"
-              className="block px-4 py-3 hover:bg-[#F5F0E8] transition-colors group"
+              className="block px-4 py-3 hover:bg-[#1F1F00] transition-colors group"
             >
               <div className="flex items-center justify-between mb-1">
                 <span className="font-mono text-[9px] uppercase tracking-widest text-amber-700 bg-amber-100/60 px-1.5 py-0.5 rounded">
@@ -434,7 +434,7 @@ export function NewsPanel({
                 </span>
                 <ExternalLink className="h-3 w-3 text-[#bbb] group-hover:text-[#666] transition-colors" />
               </div>
-              <p className="text-[12px] text-[#1a1a1a] leading-snug line-clamp-2 mb-1">{a.title}</p>
+              <p className="text-[12px] text-white leading-snug line-clamp-2 mb-1">{a.title}</p>
               <p className="text-[10px] text-[#aaa] font-mono">{a.published ?? "—"}</p>
             </a>
           ))
@@ -447,9 +447,9 @@ export function NewsPanel({
 function NewsSkeletonRow() {
   return (
     <div className="px-4 py-3 animate-pulse space-y-1.5">
-      <div className="h-2.5 w-14 bg-[#E8E0D0] rounded" />
-      <div className="h-3 w-full bg-[#F0E9DC] rounded" />
-      <div className="h-3 w-3/4 bg-[#F0E9DC] rounded" />
+      <div className="h-2.5 w-14 bg-[#2A2A2A] rounded" />
+      <div className="h-3 w-full bg-[#1A1A1A] rounded" />
+      <div className="h-3 w-3/4 bg-[#1A1A1A] rounded" />
     </div>
   );
 }
@@ -485,11 +485,11 @@ export function StockInspector({
   const volumeTone: SignalChipProps["tone"] = positive ? "good" : change < -1.5 ? "bad" : "neutral";
 
   return (
-    <div className="bg-white border border-[#E8E0D0] rounded-2xl p-5 shadow-sm">
+    <div className="bg-[#111111] border border-[#2A2A2A] rounded-2xl p-5 shadow-sm">
       <div className="flex items-start justify-between gap-3 mb-4">
         <div>
           <div className="flex items-center gap-2">
-            <h3 className="text-xl font-bold text-[#1a1a1a]">{stock.ticker}</h3>
+            <h3 className="text-xl font-bold text-white">{stock.ticker}</h3>
             <span className="font-mono text-[9px] uppercase tracking-widest text-[#bbb]">{stock.sector}</span>
           </div>
           <p className="text-[11px] text-[#999] truncate max-w-[220px]">{stock.company}</p>
@@ -498,7 +498,7 @@ export function StockInspector({
       </div>
 
       <div className="flex items-baseline gap-2 mb-4">
-        <TickerNumber value={price} prefix="$" className="text-3xl font-bold text-[#1a1a1a]" />
+        <TickerNumber value={price} prefix="$" className="text-3xl font-bold text-white" />
         <div className={`flex items-center gap-0.5 text-sm font-semibold ${positive ? "text-green-600" : "text-red-500"}`}>
           {positive ? <ChevronUp className="h-4 w-4" /> : <ChevronDown className="h-4 w-4" />}
           {positive ? "+" : ""}{change.toFixed(2)}%
@@ -566,10 +566,10 @@ export function AnalysisResultCard({
   );
 
   return (
-    <div className="bg-white border border-[#E8E0D0] rounded-2xl p-5 sm:p-6 shadow-sm relative">
+    <div className="bg-[#111111] border border-[#2A2A2A] rounded-2xl p-5 sm:p-6 shadow-sm relative">
       <button
         onClick={onDismiss}
-        className="absolute top-4 right-4 p-1.5 rounded-lg hover:bg-[#F5F0E8] text-[#aaa] hover:text-[#555] transition-colors"
+        className="absolute top-4 right-4 p-1.5 rounded-lg hover:bg-[#1F1F00] text-[#aaa] hover:text-[#555] transition-colors"
         aria-label="Dismiss result"
       >
         <X className="h-4 w-4" />
@@ -580,7 +580,7 @@ export function AnalysisResultCard({
           <p className="font-mono text-[9px] uppercase tracking-widest text-[#aaa] mb-1">
             Analysis Complete — {completedAtStr} {isMock && "· DEMO"}
           </p>
-          <h2 className="text-xl font-bold text-[#1a1a1a] leading-tight">
+          <h2 className="text-xl font-bold text-white leading-tight">
             {ticker}
             <span className="text-[#999] font-normal text-sm ml-2">{company}</span>
           </h2>
@@ -591,10 +591,10 @@ export function AnalysisResultCard({
       </div>
 
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 mb-5">
-        <div className="bg-[#F5F0E8] rounded-xl p-4">
+        <div className="bg-[#1F1F00] rounded-xl p-4">
           <p className="font-mono text-[9px] uppercase tracking-widest text-[#aaa] mb-1">Confidence</p>
-          <p className="text-2xl font-bold text-[#1a1a1a]">{result.confidence}%</p>
-          <div className="mt-2.5 h-1.5 bg-[#E0D8CC] rounded-full overflow-hidden">
+          <p className="text-2xl font-bold text-white">{result.confidence}%</p>
+          <div className="mt-2.5 h-1.5 bg-[#2A2A2A] rounded-full overflow-hidden">
             <div
               className="h-full bg-gradient-to-r from-amber-400 to-orange-500 rounded-full"
               style={{
@@ -605,11 +605,11 @@ export function AnalysisResultCard({
           </div>
         </div>
 
-        <div className="bg-[#F5F0E8] rounded-xl p-4">
+        <div className="bg-[#1F1F00] rounded-xl p-4">
           <p className="font-mono text-[9px] uppercase tracking-widest text-[#aaa] mb-1">News Sentiment</p>
-          <p className="text-sm font-semibold text-[#1a1a1a] mb-2">{result.sentiment}</p>
+          <p className="text-sm font-semibold text-white mb-2">{result.sentiment}</p>
           <div className="flex items-center gap-2">
-            <div className="flex-1 h-1.5 bg-[#E0D8CC] rounded-full overflow-hidden">
+            <div className="flex-1 h-1.5 bg-[#2A2A2A] rounded-full overflow-hidden">
               <div
                 className={`h-full bg-gradient-to-r ${sentimentBar} rounded-full`}
                 style={{
@@ -622,9 +622,9 @@ export function AnalysisResultCard({
           </div>
         </div>
 
-        <div className="bg-[#F5F0E8] rounded-xl p-4">
+        <div className="bg-[#1F1F00] rounded-xl p-4">
           <p className="font-mono text-[9px] uppercase tracking-widest text-[#aaa] mb-1">Current Price</p>
-          <TickerNumber value={price} prefix="$" className="text-2xl font-bold text-[#1a1a1a]" />
+          <TickerNumber value={price} prefix="$" className="text-2xl font-bold text-white" />
           <div className={`flex items-center gap-0.5 text-[11px] font-semibold mt-1 ${changePercent >= 0 ? "text-green-600" : "text-red-500"}`}>
             {changePercent >= 0 ? <ChevronUp className="h-3 w-3" /> : <ChevronDown className="h-3 w-3" />}
             {changePercent >= 0 ? "+" : ""}{changePercent.toFixed(2)}% today

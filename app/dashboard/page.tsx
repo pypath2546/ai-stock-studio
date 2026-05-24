@@ -167,10 +167,10 @@ export default function DashboardPage() {
   const realChange = detail.stock?.summary.change_pct ?? null;
 
   return (
-    <div className="-mx-4 -mt-8 bg-[#F5F0E8] text-[#1a1a1a] min-h-screen font-sans">
+    <div className="-mx-4 -mt-8 bg-[#1F1F00] text-white min-h-screen font-sans">
 
       {/* ── Dashboard Header ── */}
-      <header className="sticky top-14 z-30 bg-[#F5F0E8]/90 backdrop-blur-sm border-b border-[#E8E0D0]">
+      <header className="sticky top-14 z-30 bg-[#1F1F00]/90 backdrop-blur-sm border-b border-[#2A2A2A]">
         <OfflineBanner visible={isOffline && !stocksLoading} onRetry={refresh} />
 
         <div className="px-4 sm:px-6 py-4 flex flex-wrap items-start justify-between gap-3">
@@ -196,7 +196,7 @@ export default function DashboardPage() {
           <div className="flex items-center gap-2 flex-wrap">
             <button
               onClick={() => setWatchlistOpen(true)}
-              className="px-4 py-1.5 bg-white border border-[#ccc] rounded-full font-mono text-xs uppercase tracking-wider text-gray-500 hover:border-amber-400 hover:text-amber-700 transition-colors"
+              className="px-4 py-1.5 bg-[#111111] border border-[#ccc] rounded-full font-mono text-xs uppercase tracking-wider text-gray-400 hover:border-amber-400 hover:text-amber-700 transition-colors"
             >
               {selectedTicker ? (
                 <>Watching: <span className="text-amber-600 font-bold">{selectedTicker}</span></>
@@ -220,7 +220,7 @@ export default function DashboardPage() {
               onClick={refresh}
               disabled={stocksLoading}
               title="Refresh prices"
-              className="p-2 border border-[#ccc] rounded-full text-gray-400 hover:text-gray-600 hover:border-gray-400 transition-colors"
+              className="p-2 border border-[#ccc] rounded-full text-gray-400 hover:text-gray-300 hover:border-gray-400 transition-colors"
             >
               <RefreshCw className={`h-3.5 w-3.5 ${stocksLoading ? "animate-spin" : ""}`} />
             </button>
@@ -228,7 +228,7 @@ export default function DashboardPage() {
             <button
               onClick={reset}
               title="Reset (Esc)"
-              className="p-2 border border-[#ccc] rounded-full text-gray-400 hover:text-gray-600 hover:border-gray-400 transition-colors"
+              className="p-2 border border-[#ccc] rounded-full text-gray-400 hover:text-gray-300 hover:border-gray-400 transition-colors"
             >
               <RotateCcw className="h-3.5 w-3.5" />
             </button>
@@ -244,7 +244,7 @@ export default function DashboardPage() {
               className={`flex-shrink-0 px-4 py-1 rounded-full font-mono text-xs uppercase tracking-wider transition-colors duration-150 ${
                 pipelineFilter === tab.id
                   ? "bg-[#1a1a1a] text-white"
-                  : "border border-[#ccc] text-gray-500 hover:border-gray-400 hover:text-gray-700"
+                  : "border border-[#ccc] text-gray-400 hover:border-gray-400 hover:text-gray-300"
               }`}
             >
               {tab.label}
@@ -341,7 +341,7 @@ export default function DashboardPage() {
       </div>
 
       {/* ── Footer ── */}
-      <footer className="px-4 sm:px-6 py-4 mt-2 border-t border-[#E8E0D0] flex flex-wrap items-center justify-between gap-2">
+      <footer className="px-4 sm:px-6 py-4 mt-2 border-t border-[#2A2A2A] flex flex-wrap items-center justify-between gap-2">
         <p className="font-mono text-[9px] uppercase tracking-widest text-[#bbb]">
           AI Stock Studio · Powered by Claude
         </p>

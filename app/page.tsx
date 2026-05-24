@@ -3,7 +3,6 @@
 import { useEffect, useState } from "react";
 import { BookOpen, Newspaper, Sparkles, Users } from "lucide-react";
 
-const SEED_USD = 10000;
 const CASH_USD = 599;
 
 const TOP_HOLDINGS = [
@@ -28,15 +27,33 @@ interface PriceRow {
   change: string | null;
 }
 
+interface PaperHolding {
+  ticker: string;
+  shares: number;
+  avgCost: number;
+}
+
+interface PaperPortfolio {
+  cash: number;
+  holdings: PaperHolding[];
+  trades: unknown[];
+  startValue: number;
+}
+
 export default function Home() {
   const [prices, setPrices]       = useState<Record<string, PriceRow>>({});
   const [priceLoading, setLoading] = useState(true);
+  const [paper, setPaper] = useState<PaperPortfolio | null>(null);
 
   useEffect(() => {
     fetch("/api/stocks")
       .then(r => r.json())
       .then(d => { setPrices(d.prices || {}); setLoading(false); })
       .catch(() => setLoading(false));
+    fetch("/api/portfolio")
+      .then(r => r.json())
+      .then((d: PaperPortfolio) => setPaper(d))
+      .catch(() => {});
   }, []);
 
   const totalValue = ALL_HOLDINGS.reduce((sum, h) => {
@@ -44,7 +61,17 @@ export default function Home() {
     return sum + (last != null ? h.shares * last : h.cost);
   }, 0) + CASH_USD;
 
-  const navPct = ((totalValue - SEED_USD) / SEED_USD) * 100;
+  const paperValue = paper
+    ? paper.cash +
+      paper.holdings.reduce((sum, h) => {
+        const last = prices[h.ticker]?.last;
+        return sum + (last != null ? h.shares * last : h.shares * h.avgCost);
+      }, 0)
+    : null;
+
+  const paperPct = paper && paperValue != null
+    ? ((paperValue - paper.startValue) / paper.startValue) * 100
+    : 0;
 
   return (
     <div className="px-6 lg:px-10 py-10 max-w-[1200px] mx-auto">
@@ -54,10 +81,10 @@ export default function Home() {
         <p className="font-mono text-xs text-gray-400 tracking-widest uppercase mb-2">
           WELCOME BACK
         </p>
-        <h1 className="text-5xl font-bold text-gray-900 mb-3">
+        <h1 className="text-5xl font-bold text-white mb-3">
           AI <span className="italic text-amber-600">Studio.</span>
         </h1>
-        <p className="text-lg text-gray-500 max-w-xl">
+        <p className="text-lg text-gray-400 max-w-xl">
           Your intelligent investment research workspace —
           powered by AI agents, real-time data, and structured thinking.
         </p>
@@ -65,33 +92,35 @@ export default function Home() {
 
       {/* SECTION 2: Stats Bar */}
       <section className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-10">
-        <div className="bg-[#4a5c3f] text-white rounded-2xl p-5">
+        <a href="/trading" className="bg-[#F5C518] text-black rounded-2xl p-5 hover:shadow-md hover:-translate-y-0.5 transition-all block">
           <p className="font-mono text-xs opacity-60 tracking-widest">PORTFOLIO VALUE</p>
-          {priceLoading ? (
+          {paperValue == null ? (
             <div className="h-9 w-28 bg-white/20 rounded animate-pulse mt-1" />
           ) : (
             <p className="text-3xl font-bold tabular-nums mt-1">
-              ${Math.round(totalValue).toLocaleString("en-US")}
+              ${Math.round(paperValue).toLocaleString("en-US")}
             </p>
           )}
           <p className="text-xs opacity-70 mt-1">
-            {navPct >= 0 ? "+" : ""}{navPct.toFixed(2)}% since inception
+            {paper
+              ? `${paperPct >= 0 ? "+" : ""}${paperPct.toFixed(2)}% paper trading`
+              : "paper trading"}
           </p>
-        </div>
+        </a>
 
-        <div className="bg-white border border-[#E0D9C8] rounded-2xl p-5">
+        <div className="bg-[#111111] border border-[#2A2A2A] rounded-2xl p-5">
           <p className="font-mono text-xs text-gray-400 tracking-widest">AI AGENTS</p>
           <p className="text-3xl font-bold mt-1">11</p>
           <p className="text-xs text-gray-400 mt-1">5 pipelines · 0 errors</p>
         </div>
 
-        <div className="bg-white border border-[#E0D9C8] rounded-2xl p-5">
+        <div className="bg-[#111111] border border-[#2A2A2A] rounded-2xl p-5">
           <p className="font-mono text-xs text-gray-400 tracking-widest">HOLDINGS</p>
           <p className="text-3xl font-bold mt-1">7</p>
           <p className="text-xs text-gray-400 mt-1">cash ${CASH_USD} · {((CASH_USD / totalValue) * 100).toFixed(1)}%</p>
         </div>
 
-        <div className="bg-white border border-[#E0D9C8] rounded-2xl p-5">
+        <div className="bg-[#111111] border border-[#2A2A2A] rounded-2xl p-5">
           <p className="font-mono text-xs text-gray-400 tracking-widest">NEWS TODAY</p>
           <p className="text-3xl font-bold mt-1">11</p>
           <p className="text-xs text-gray-400 mt-1">articles · updated 30m ago</p>
@@ -102,29 +131,29 @@ export default function Home() {
       <section className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-10">
         <a
           href="/diary"
-          className="group bg-white border border-[#E0D9C8] rounded-2xl p-6 hover:shadow-md hover:-translate-y-1 transition-all"
+          className="group bg-[#111111] border border-[#2A2A2A] rounded-2xl p-6 hover:border-[#F5C518]/50 hover:shadow-md hover:-translate-y-1 transition-all"
         >
           <div className="flex items-start justify-between mb-4">
-            <div className="w-12 h-12 bg-[#4a5c3f] rounded-xl flex items-center justify-center">
-              <BookOpen className="w-6 h-6 text-white" />
+            <div className="w-12 h-12 bg-[#F5C518] rounded-xl flex items-center justify-center">
+              <BookOpen className="w-6 h-6 text-black" />
             </div>
-            <span className="text-xs font-mono text-gray-400 group-hover:text-[#4a5c3f] transition-colors">
+            <span className="text-xs font-mono text-gray-400 group-hover:text-[#F5C518] transition-colors">
               View →
             </span>
           </div>
           <h2 className="text-xl font-bold mb-1">Portfolio Diary</h2>
-          <p className="text-sm text-gray-500 mb-4">
+          <p className="text-sm text-gray-400 mb-4">
             Nick&apos;s blinded $10K portfolio — live prices, thesis tracking, and weekly snapshots.
           </p>
           <div className="flex gap-2 flex-wrap">
             <span className="bg-emerald-100 text-emerald-700 text-xs font-mono px-2 py-1 rounded-full">● Live Prices</span>
-            <span className="bg-[#F5F0E8] text-gray-600 text-xs font-mono px-2 py-1 rounded-full">7 Holdings</span>
+            <span className="bg-[#1F1F00] text-gray-300 text-xs font-mono px-2 py-1 rounded-full">7 Holdings</span>
           </div>
         </a>
 
         <a
           href="/news"
-          className="group bg-white border border-[#E0D9C8] rounded-2xl p-6 hover:shadow-md hover:-translate-y-1 transition-all"
+          className="group bg-[#111111] border border-[#2A2A2A] rounded-2xl p-6 hover:border-[#F5C518]/50 hover:shadow-md hover:-translate-y-1 transition-all"
         >
           <div className="flex items-start justify-between mb-4">
             <div className="w-12 h-12 bg-blue-600 rounded-xl flex items-center justify-center">
@@ -135,18 +164,18 @@ export default function Home() {
             </span>
           </div>
           <h2 className="text-xl font-bold mb-1">Tech &amp; Finance News</h2>
-          <p className="text-sm text-gray-500 mb-4">
+          <p className="text-sm text-gray-400 mb-4">
             Curated RSS feeds from TechCrunch, Yahoo Finance, MarketWatch and more.
           </p>
           <div className="flex gap-2 flex-wrap">
             <span className="bg-blue-100 text-blue-700 text-xs font-mono px-2 py-1 rounded-full">● RSS Live</span>
-            <span className="bg-[#F5F0E8] text-gray-600 text-xs font-mono px-2 py-1 rounded-full">8 Sources</span>
+            <span className="bg-[#1F1F00] text-gray-300 text-xs font-mono px-2 py-1 rounded-full">8 Sources</span>
           </div>
         </a>
 
         <a
           href="/ai"
-          className="group bg-white border border-[#E0D9C8] rounded-2xl p-6 hover:shadow-md hover:-translate-y-1 transition-all"
+          className="group bg-[#111111] border border-[#2A2A2A] rounded-2xl p-6 hover:border-[#F5C518]/50 hover:shadow-md hover:-translate-y-1 transition-all"
         >
           <div className="flex items-start justify-between mb-4">
             <div className="w-12 h-12 bg-amber-500 rounded-xl flex items-center justify-center">
@@ -157,18 +186,18 @@ export default function Home() {
             </span>
           </div>
           <h2 className="text-xl font-bold mb-1">AI Agent Studio</h2>
-          <p className="text-sm text-gray-500 mb-4">
+          <p className="text-sm text-gray-400 mb-4">
             11 AI agents across 5 pipelines — orchestrate, analyze, and report on any stock.
           </p>
           <div className="flex gap-2 flex-wrap">
             <span className="bg-amber-100 text-amber-700 text-xs font-mono px-2 py-1 rounded-full">11 Agents</span>
-            <span className="bg-[#F5F0E8] text-gray-600 text-xs font-mono px-2 py-1 rounded-full">5 Pipelines</span>
+            <span className="bg-[#1F1F00] text-gray-300 text-xs font-mono px-2 py-1 rounded-full">5 Pipelines</span>
           </div>
         </a>
 
         <a
           href="/team"
-          className="group bg-white border border-[#E0D9C8] rounded-2xl p-6 hover:shadow-md hover:-translate-y-1 transition-all"
+          className="group bg-[#111111] border border-[#2A2A2A] rounded-2xl p-6 hover:border-[#F5C518]/50 hover:shadow-md hover:-translate-y-1 transition-all"
         >
           <div className="flex items-start justify-between mb-4">
             <div className="w-12 h-12 bg-purple-600 rounded-xl flex items-center justify-center">
@@ -179,40 +208,40 @@ export default function Home() {
             </span>
           </div>
           <h2 className="text-xl font-bold mb-1">Team</h2>
-          <p className="text-sm text-gray-500 mb-4">
+          <p className="text-sm text-gray-400 mb-4">
             Meet the people and agents behind AI Studio. Built by Yim, powered by Claude.
           </p>
           <div className="flex gap-2 flex-wrap">
             <span className="bg-purple-100 text-purple-700 text-xs font-mono px-2 py-1 rounded-full">1 Human</span>
-            <span className="bg-[#F5F0E8] text-gray-600 text-xs font-mono px-2 py-1 rounded-full">11 Agents</span>
+            <span className="bg-[#1F1F00] text-gray-300 text-xs font-mono px-2 py-1 rounded-full">11 Agents</span>
           </div>
         </a>
       </section>
 
       {/* SECTION 4: Portfolio Snapshot */}
-      <section className="bg-white border border-[#E0D9C8] rounded-2xl p-6">
+      <section className="bg-[#111111] border border-[#2A2A2A] rounded-2xl p-6">
         <div className="flex items-center justify-between mb-4">
           <div>
             <p className="font-mono text-xs text-gray-400 tracking-widest">PORTFOLIO SNAPSHOT</p>
             <h3 className="text-lg font-bold mt-1">Top Holdings</h3>
           </div>
-          <a href="/diary" className="text-sm text-[#4a5c3f] font-medium hover:underline">
+          <a href="/diary" className="text-sm text-[#F5C518] font-medium hover:underline">
             View all →
           </a>
         </div>
 
-        <div className="divide-y divide-[#F0E8D8]">
+        <div className="divide-y divide-[#2A2A2A]">
           {priceLoading
             ? Array.from({ length: 4 }).map((_, i) => (
                 <div key={i} className="flex items-center justify-between py-3 gap-4 animate-pulse">
                   <div className="space-y-1.5 flex-1">
-                    <div className="h-4 w-16 bg-[#E0D9C8] rounded" />
-                    <div className="h-3 w-24 bg-[#E0D9C8] rounded" />
+                    <div className="h-4 w-16 bg-[#2A2A2A] rounded" />
+                    <div className="h-3 w-24 bg-[#2A2A2A] rounded" />
                   </div>
-                  <div className="w-32 h-1.5 bg-[#E0D9C8] rounded-full" />
+                  <div className="w-32 h-1.5 bg-[#2A2A2A] rounded-full" />
                   <div className="space-y-1.5 text-right">
-                    <div className="h-4 w-16 bg-[#E0D9C8] rounded ml-auto" />
-                    <div className="h-3 w-10 bg-[#E0D9C8] rounded ml-auto" />
+                    <div className="h-4 w-16 bg-[#2A2A2A] rounded ml-auto" />
+                    <div className="h-3 w-10 bg-[#2A2A2A] rounded ml-auto" />
                   </div>
                 </div>
               ))
@@ -228,9 +257,9 @@ export default function Home() {
                     </div>
 
                     <div className="flex-1 flex items-center gap-2">
-                      <div className="flex-1 h-1.5 bg-[#E0D9C8] rounded-full overflow-hidden">
+                      <div className="flex-1 h-1.5 bg-[#2A2A2A] rounded-full overflow-hidden">
                         <div
-                          className="h-full bg-[#4a5c3f] rounded-full"
+                          className="h-full bg-[#F5C518] rounded-full"
                           style={{ width: `${Math.min(h.weight * 4, 100)}%` }}
                         />
                       </div>

@@ -2,7 +2,7 @@ import { NextResponse } from "next/server";
 
 export const revalidate = 300;
 
-const TICKERS = ["GOOGL", "AVGO", "AMZN", "UBER", "CRWD", "RBRK", "SOI.PA"];
+const TICKERS = ["GOOGL", "AVGO", "AMZN", "UBER", "CRWD", "RBRK", "SOI.PA", "NVDA", "META", "MSFT", "TSLA", "PLTR"];
 
 interface PriceData {
   ticker: string;
