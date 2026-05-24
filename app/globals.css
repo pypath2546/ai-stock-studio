@@ -21,6 +21,19 @@
   --text-muted: #555555;
 }
 
+[data-theme="light"] {
+  --bg-primary: #F5F0E8;
+  --bg-card: #FFFFFF;
+  --bg-elevated: #F0EBE0;
+  --border: #E0D5C5;
+  --text-primary: #1A1A1A;
+  --text-secondary: #555555;
+  --text-muted: #999999;
+  --color-gold: #C8960C;
+  --color-gold-hover: #B0840A;
+  --color-gold-dim: #FAEFC8;
+}
+
 @theme {
   --color-gold: #F5C518;
   --color-gold-hover: #F0B800;
@@ -45,14 +58,22 @@
 
 body {
   background: var(--bg-primary);
-  color: #E5E5E5;
+  color: var(--text-primary);
   font-family: "Inter", ui-sans-serif, system-ui, sans-serif;
   font-weight: 400;
+  transition: background-color 200ms ease, color 200ms ease;
 }
 
 p, span, td, li, label {
   color: inherit;
 }
+
+.bg-app { background: var(--bg-primary); }
+.bg-card { background: var(--bg-card); }
+.bg-elevated { background: var(--bg-elevated); }
+.border-app { border-color: var(--border); }
+.text-app { color: var(--text-primary); }
+.text-muted { color: var(--text-secondary); }
 
 h1, h2, h3, h4, h5, h6 {
   font-family: "Inter", ui-sans-serif, system-ui, sans-serif;
@@ -109,4 +130,45 @@ h1, h2, h3, h4, h5, h6 {
   0%   { width: 0%; }
   50%  { width: 70%; }
   100% { width: 100%; }
+}
+
+/* ── Light-mode overrides ──────────────────────────────────────────── */
+
+[data-theme="light"] [class*="bg-[#111"],
+[data-theme="light"] [class*="bg-[#1A1A"] {
+  background: var(--bg-card) !important;
+}
+
+[data-theme="light"] [class*="bg-[#0A0A0A"] {
+  background: var(--bg-primary) !important;
+}
+
+[data-theme="light"] [class*="bg-[#1F1F00"],
+[data-theme="light"] [class*="bg-[#1A1A00"] {
+  background: var(--color-gold-dim) !important;
+}
+
+[data-theme="light"] [class*="border-[#2A2A2A"] {
+  border-color: var(--border) !important;
+}
+
+[data-theme="light"] [class*="text-white"] {
+  color: var(--text-primary) !important;
+}
+[data-theme="light"] [class*="text-gray-200"],
+[data-theme="light"] [class*="text-gray-300"] {
+  color: var(--text-primary) !important;
+}
+[data-theme="light"] [class*="text-gray-400"],
+[data-theme="light"] [class*="text-gray-500"] {
+  color: var(--text-secondary) !important;
+}
+
+[data-theme="light"] aside {
+  background: #FDFAF4 !important;
+  border-color: var(--border) !important;
+}
+
+[data-theme="light"] ::-webkit-scrollbar-track {
+  background: var(--bg-elevated);
 }

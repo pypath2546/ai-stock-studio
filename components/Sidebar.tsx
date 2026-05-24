@@ -13,8 +13,11 @@ import {
   Mail,
   Brain,
   TrendingUp,
+  Sun,
+  Moon,
 } from "lucide-react";
 import { useNewsOutline } from "@/lib/news-outline-context";
+import { useTheme } from "@/components/ThemeProvider";
 
 const NAV_ITEMS = [
   { href: "/", label: "Home", icon: Home },
@@ -30,6 +33,7 @@ const PAGE_OUTLINES: Record<string, { href: string; label: string }[]> = {};
 export default function Sidebar() {
   const pathname = usePathname();
   const { items: newsOutline } = useNewsOutline();
+  const { theme, toggle } = useTheme();
 
   return (
     <aside className="w-64 flex-shrink-0 h-screen sticky top-0 border-r border-[#2A2A2A] bg-[#0A0A0A] flex flex-col">
@@ -108,7 +112,25 @@ export default function Sidebar() {
       <div className="mt-auto px-4 pb-5 pt-4 space-y-3">
         <button
           type="button"
-          className="w-full bg-gold hover:bg-[#F0B800] text-black text-sm font-semibold rounded-full py-2 transition-colors"
+          onClick={toggle}
+          aria-label={theme === 'dark' ? 'Switch to light mode' : 'Switch to dark mode'}
+          className="w-full flex items-center gap-3 px-3 py-2 rounded-lg hover:bg-[#1A1A00] transition-colors"
+        >
+          {theme === 'dark' ? (
+            <>
+              <Sun className="w-4 h-4 text-gold" />
+              <span className="text-sm text-gray-300">Light mode</span>
+            </>
+          ) : (
+            <>
+              <Moon className="w-4 h-4 text-gold" />
+              <span className="text-sm text-gray-300">Dark mode</span>
+            </>
+          )}
+        </button>
+        <button
+          type="button"
+          className="w-full bg-gold hover:bg-gold-hover text-black text-sm font-semibold rounded-full py-2 transition-colors"
         >
           Join membership
         </button>

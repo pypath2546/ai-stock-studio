@@ -5,8 +5,7 @@ import { Play, TrendingUp } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useNewsOutline } from "@/lib/news-outline-context";
 import { TRADING_TICKERS as TICKERS, PORTFOLIO_HOLDINGS } from "@/lib/tickers";
-
-type AgentStatus = "idle" | "running" | "done";
+import { useAnalysisStore, type AgentStatus, type AnalysisResult } from "@/lib/analysisStore";
 
 interface Agent {
   name: string;
@@ -25,44 +24,14 @@ interface PipelineColors {
   glow: string;
 }
 
-interface AnalysisResult {
-  ticker: string;
-  recommendation: string;
-  confidence: number;
-  currentPrice: number | null | undefined;
-  signals: {
-    technical?: string;
-    sentiment?: string;
-    quality?: string;
-  };
-  technical: {
-    rsi?: number;
-    signal?: string;
-    reason?: string;
-  };
-  news: {
-    articles?: number;
-    sentiment?: string;
-    score?: number;
-  };
-  quality: {
-    approved?: boolean;
-    passed?: string;
-  };
-  topPicks?: TopPick[];
-  universeScanned?: number;
-}
-
-interface TopPick {
-  ticker: string;
-  score: number;
-  price: number | undefined;
-  rsi: number;
-  signal: 'BUY' | 'SELL' | 'WATCH' | 'HOLD';
-  vsSMA: string | undefined;
-  volume: string;
-  entryZone: string;
-  reason: string;
+function timeAgo(iso: string): string {
+  const seconds = Math.floor((Date.now() - new Date(iso).getTime()) / 1000);
+  if (seconds < 60) return 'just now';
+  const minutes = Math.floor(seconds / 60);
+  if (minutes < 60) return `${minutes}m ago`;
+  const hours = Math.floor(minutes / 60);
+  if (hours < 24) return `${hours}h ago`;
+  return `${Math.floor(hours / 24)}d ago`;
 }
 
 
@@ -161,16 +130,26 @@ const AI_OUTLINE = [
 const WATCHLIST_STOCKS = PORTFOLIO_HOLDINGS;
 
 export default function AIPage() {
-  const [agentStatuses, setAgentStatuses] = useState<Record<string, AgentStatus>>({});
+  const analysisResult = useAnalysisStore((s) => s.result);
+  const agentStatuses = useAnalysisStore((s) => s.agentStatuses);
+  const selectedTicker = useAnalysisStore((s) => s.selectedTicker);
+  const setResult = useAnalysisStore((s) => s.setResult);
+  const setAgentStatuses = useAnalysisStore((s) => s.setAgentStatuses);
+  const setSelectedTicker = useAnalysisStore((s) => s.setSelectedTicker);
+  const clearResult = useAnalysisStore((s) => s.clearResult);
+
   const [isAnalyzing, setIsAnalyzing]     = useState(false);
   const [isScreening, setIsScreening]     = useState(false);
   const [activePipeline, setActivePipeline] = useState("All");
-  const [analysisResult, setAnalysisResult] = useState<AnalysisResult | null>(null);
   const [showWatchlist, setShowWatchlist]   = useState(false);
   const [watchlistPrices, setWatchlistPrices] = useState<Record<string, { last: number | null; change: string | null }>>({});
-  const [selectedTicker, setSelectedTicker] = useState<string>('NVDA');
+  const [mounted, setMounted] = useState(false);
   const router = useRouter();
   const { setItems } = useNewsOutline();
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
 
   useEffect(() => {
     setItems(AI_OUTLINE);
@@ -187,7 +166,7 @@ export default function AIPage() {
   const handleRunAnalysis = async () => {
     setIsAnalyzing(true);
     setAgentStatuses({});
-    setAnalysisResult(null);
+    setResult(() => null);
 
     // Stage 1: KIRA orchestrates
     setAgentStatuses({ KIRA: 'running' });
@@ -221,7 +200,7 @@ export default function AIPage() {
     await new Promise(r => setTimeout(r, 800));
     setAgentStatuses(prev => ({ ...prev, ATLAS: 'done', FINN: 'done' }));
 
-    setAnalysisResult({
+    const reportResult: AnalysisResult = {
       ticker: selectedTicker,
       recommendation: reportRes.recommendation,
       confidence: reportRes.confidence,
@@ -230,14 +209,15 @@ export default function AIPage() {
       technical: reportRes.technical ?? {},
       news: reportRes.news ?? {},
       quality: reportRes.quality ?? {},
-    });
+    };
+    setResult(reportResult);
 
     // Stage 6: Nick screens market
     setIsScreening(true);
     setAgentStatuses(prev => ({ ...prev, KIRA: 'running' }));
     try {
       const screenRes = await fetch('/api/agents/screener').then(r => r.json());
-      setAnalysisResult(prev =>
+      setResult(prev =>
         prev
           ? { ...prev, topPicks: screenRes.topPicks, universeScanned: screenRes.universe }
           : prev,
@@ -252,8 +232,7 @@ export default function AIPage() {
   };
 
   const handleReset = () => {
-    setAgentStatuses({});
-    setAnalysisResult(null);
+    clearResult();
   };
 
   const visibleGroups = PIPELINE_GROUPS.filter(
@@ -416,8 +395,22 @@ export default function AIPage() {
         </div>
       )}
 
+      {/* Cached-result badge */}
+      {mounted && analysisResult && !isAnalyzing && analysisResult.timestamp && (
+        <div className="flex items-center gap-2 mt-4 text-xs font-mono text-gray-400">
+          <span className="w-1.5 h-1.5 rounded-full bg-gold" />
+          Last analysis: {timeAgo(analysisResult.timestamp)} · {analysisResult.ticker}
+          <button
+            onClick={handleReset}
+            className="ml-2 text-gray-400 hover:text-gold transition-colors"
+          >
+            Clear ✕
+          </button>
+        </div>
+      )}
+
       {/* Analysis result */}
-      {analysisResult && (
+      {mounted && analysisResult && (
         <div
           className="mt-8 bg-[#111111] border border-[#2A2A2A] rounded-2xl p-6"
           style={{ animation: "fadeInUp 0.5s ease-out" }}
@@ -432,6 +425,11 @@ export default function AIPage() {
                   ? `$${analysisResult.currentPrice.toFixed(2)} · ${analysisResult.ticker}`
                   : analysisResult.ticker}
               </h3>
+              {analysisResult.timestamp && (
+                <p className="text-xs font-mono text-gray-400 mt-1">
+                  Analyzed: {timeAgo(analysisResult.timestamp)}
+                </p>
+              )}
             </div>
             <button
               onClick={handleReset}
