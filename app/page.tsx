@@ -131,9 +131,9 @@ export default function Home() {
           <p className="text-sm text-gray-400 mb-4">
             Nick&apos;s blinded $10K portfolio — live prices, thesis tracking, and weekly snapshots.
           </p>
-          <div className="flex gap-2 flex-wrap">
-            <span className="bg-emerald-100 text-emerald-700 text-xs font-mono px-2 py-1 rounded-full">● Live Prices</span>
-            <span className="bg-[#1F1F00] text-gray-300 text-xs font-mono px-2 py-1 rounded-full">7 Holdings</span>
+          <div className="flex gap-3 items-center flex-wrap">
+            <span className="inline-flex items-center gap-1.5 bg-emerald-500 text-white text-xs font-mono px-3 py-1 rounded-full w-fit font-medium">● Live Prices</span>
+            <span className="text-xs font-mono text-gray-300 font-medium">7 Holdings</span>
           </div>
         </a>
 
@@ -153,9 +153,9 @@ export default function Home() {
           <p className="text-sm text-gray-400 mb-4">
             Curated RSS feeds from TechCrunch, Yahoo Finance, MarketWatch and more.
           </p>
-          <div className="flex gap-2 flex-wrap">
-            <span className="bg-blue-100 text-blue-700 text-xs font-mono px-2 py-1 rounded-full">● RSS Live</span>
-            <span className="bg-[#1F1F00] text-gray-300 text-xs font-mono px-2 py-1 rounded-full">8 Sources</span>
+          <div className="flex gap-3 items-center flex-wrap">
+            <span className="inline-flex items-center gap-1.5 bg-blue-500 text-white text-xs font-mono px-3 py-1 rounded-full w-fit font-medium">● RSS Live</span>
+            <span className="text-xs font-mono text-gray-300 font-medium">8 Sources</span>
           </div>
         </a>
 
@@ -175,9 +175,9 @@ export default function Home() {
           <p className="text-sm text-gray-400 mb-4">
             11 AI agents across 5 pipelines — orchestrate, analyze, and report on any stock.
           </p>
-          <div className="flex gap-2 flex-wrap">
-            <span className="bg-amber-100 text-amber-700 text-xs font-mono px-2 py-1 rounded-full">11 Agents</span>
-            <span className="bg-[#1F1F00] text-gray-300 text-xs font-mono px-2 py-1 rounded-full">5 Pipelines</span>
+          <div className="flex gap-3 items-center flex-wrap">
+            <span className="inline-flex items-center gap-1.5 bg-gold text-black text-xs font-mono px-3 py-1 rounded-full w-fit font-medium">11 Agents</span>
+            <span className="text-xs font-mono text-gray-300 font-medium">5 Pipelines</span>
           </div>
         </a>
 
@@ -197,9 +197,9 @@ export default function Home() {
           <p className="text-sm text-gray-400 mb-4">
             $10K simulated portfolio with live prices and a Nick&apos;s Entry Scanner across 11 names.
           </p>
-          <div className="flex gap-2 flex-wrap">
-            <span className="bg-emerald-100 text-emerald-700 text-xs font-mono px-2 py-1 rounded-full">● Live Scan</span>
-            <span className="bg-[#1F1F00] text-gray-300 text-xs font-mono px-2 py-1 rounded-full">$0 risk</span>
+          <div className="flex gap-3 items-center flex-wrap">
+            <span className="inline-flex items-center gap-1.5 bg-emerald-500 text-white text-xs font-mono px-3 py-1 rounded-full w-fit font-medium">● Live Scan</span>
+            <span className="text-xs font-mono text-gray-300 font-medium">$0 risk</span>
           </div>
         </a>
       </section>
