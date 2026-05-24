@@ -252,13 +252,14 @@ export default function AIPage() {
     setAgentStatuses(prev => ({ ...prev, KIRA: 'running' }));
     try {
       const screenRes = await fetch('/api/agents/screener').then(r => r.json());
+      console.log('Screener response:', screenRes);
       setAnalysisResult(prev =>
         prev
           ? { ...prev, topPicks: screenRes.topPicks, universeScanned: screenRes.universe }
           : prev,
       );
-    } catch {
-      /* swallow — screener is supplementary */
+    } catch (err) {
+      console.error('Screener fetch failed:', err);
     }
     setAgentStatuses(prev => ({ ...prev, KIRA: 'done' }));
     setIsScreening(false);

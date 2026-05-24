@@ -1,13 +1,11 @@
 import { NextResponse } from 'next/server';
 
-const UNIVERSE = Array.from(new Set([
-  'AAPL','MSFT','NVDA','GOOGL','AMZN','META','TSLA','AVGO','BRK-B','JPM',
-  'LLY','V','UNH','XOM','MA','JNJ','PG','HD','COST','ABBV',
-  'WMT','MRK','CVX','NFLX','CRM','AMD','TMO','BAC','ACN','MCD',
-  'ABT','CSCO','ADBE','WFC','TXN','DHR','NOW','QCOM','IBM','GE',
-  'AMGN','NEE','INTU','PFE','ISRG','SPGI','BKNG','GS','RTX',
-  'CRWD','PLTR','RBRK','UBER','SNOW','NET','DDOG','ARM','SMCI',
-]));
+const UNIVERSE = [
+  'AAPL','MSFT','NVDA','GOOGL','AMZN',
+  'META','TSLA','AVGO','CRWD','PLTR',
+  'RBRK','UBER','AMD','ARM','NET',
+  'DDOG','SNOW','SMCI','ORCL','IBM',
+];
 
 interface TechnicalResponse {
   ticker: string;
@@ -39,10 +37,16 @@ export async function GET(request: Request) {
 
   const results = await Promise.allSettled(
     UNIVERSE.map(async (ticker): Promise<Pick | null> => {
+      const controller = new AbortController();
+      const timeout = setTimeout(() => controller.abort(), 5000);
       try {
-        const res = await fetch(`${baseUrl}/api/agents/technical?ticker=${encodeURIComponent(ticker)}`);
+        const url = `${baseUrl}/api/agents/technical?ticker=${encodeURIComponent(ticker)}`;
+        const res = await fetch(url, { signal: controller.signal });
         const data: TechnicalResponse = await res.json();
-        if (!res.ok || data.error) return null;
+        if (!res.ok || data.error) {
+          console.log(`Screener: skipped ${ticker} (${data.error ?? `HTTP ${res.status}`})`);
+          return null;
+        }
 
         const rsi = data.indicators?.rsi ?? 50;
         const signal = data.signal ?? 'HOLD';
@@ -81,8 +85,12 @@ export async function GET(request: Request) {
           entryZone,
           reason: `RSI ${rsi} · ${data.indicators?.priceVsSMA ?? '—'} vs SMA20 · Volume ${volume}`,
         };
-      } catch {
+      } catch (err) {
+        const reason = err instanceof Error ? err.message : String(err);
+        console.log(`Screener: failed ${ticker} (${reason})`);
         return null;
+      } finally {
+        clearTimeout(timeout);
       }
     }),
   );
@@ -93,9 +101,13 @@ export async function GET(request: Request) {
     .sort((a, b) => b.score - a.score)
     .slice(0, 5);
 
+  console.log('Screener results:', scored.length, 'picks found');
+
   return NextResponse.json({
     topPicks: scored,
     scannedAt: new Date().toISOString(),
     universe: UNIVERSE.length,
+    scanned: results.length,
+    succeeded: results.filter((r) => r.status === 'fulfilled' && r.value !== null).length,
   });
 }
