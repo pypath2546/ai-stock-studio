@@ -48,6 +48,20 @@ interface AnalysisResult {
     approved?: boolean;
     passed?: string;
   };
+  topPicks?: TopPick[];
+  universeScanned?: number;
+}
+
+interface TopPick {
+  ticker: string;
+  score: number;
+  price: number | undefined;
+  rsi: number;
+  signal: 'BUY' | 'SELL' | 'WATCH' | 'HOLD';
+  vsSMA: string | undefined;
+  volume: string;
+  entryZone: string;
+  reason: string;
 }
 
 const TICKERS = ['GOOGL', 'AVGO', 'AMZN', 'UBER', 'CRWD', 'RBRK', 'NVDA', 'META', 'MSFT', 'TSLA', 'PLTR'] as const;
@@ -164,6 +178,7 @@ const WATCHLIST_STOCKS: WatchlistStock[] = [
 export default function AIPage() {
   const [agentStatuses, setAgentStatuses] = useState<Record<string, AgentStatus>>({});
   const [isAnalyzing, setIsAnalyzing]     = useState(false);
+  const [isScreening, setIsScreening]     = useState(false);
   const [activePipeline, setActivePipeline] = useState("All");
   const [analysisResult, setAnalysisResult] = useState<AnalysisResult | null>(null);
   const [showWatchlist, setShowWatchlist]   = useState(false);
@@ -231,6 +246,22 @@ export default function AIPage() {
       news: reportRes.news ?? {},
       quality: reportRes.quality ?? {},
     });
+
+    // Stage 6: Nick screens market
+    setIsScreening(true);
+    setAgentStatuses(prev => ({ ...prev, KIRA: 'running' }));
+    try {
+      const screenRes = await fetch('/api/agents/screener').then(r => r.json());
+      setAnalysisResult(prev =>
+        prev
+          ? { ...prev, topPicks: screenRes.topPicks, universeScanned: screenRes.universe }
+          : prev,
+      );
+    } catch {
+      /* swallow — screener is supplementary */
+    }
+    setAgentStatuses(prev => ({ ...prev, KIRA: 'done' }));
+    setIsScreening(false);
 
     setIsAnalyzing(false);
   };
@@ -390,6 +421,16 @@ export default function AIPage() {
         })}
       </div>
 
+      {/* Screening progress */}
+      {isScreening && (
+        <div className="mt-4 bg-[#1A1A00] border border-[#F5C518]/20 rounded-xl p-4 flex items-center gap-3">
+          <span className="w-2 h-2 bg-[#F5C518] rounded-full animate-pulse" />
+          <p className="text-[#F5C518] font-mono text-sm">
+            Nick is scanning 50 stocks for entry opportunities...
+          </p>
+        </div>
+      )}
+
       {/* Analysis result */}
       {analysisResult && (
         <div
@@ -514,6 +555,106 @@ export default function AIPage() {
               </div>
             </div>
           </div>
+
+          {/* Top picks (market screener) */}
+          {analysisResult.topPicks && analysisResult.topPicks.length > 0 && (
+            <div className="mt-6 bg-[#111111] border border-[#2A2A2A] rounded-2xl p-5">
+              <div className="flex items-center justify-between mb-4">
+                <div>
+                  <p className="font-mono text-xs text-gray-400 tracking-widest">
+                    NICK&apos;S TOP PICKS · {analysisResult.universeScanned} STOCKS SCANNED
+                  </p>
+                  <h3 className="text-white font-bold text-lg mt-1">
+                    Best Entry Opportunities Right Now
+                  </h3>
+                </div>
+                <span className="bg-[#1A1A00] text-[#F5C518] text-xs font-mono px-3 py-1 rounded-full border border-[#F5C518]/30">
+                  ● LIVE SCAN
+                </span>
+              </div>
+
+              <div className="space-y-3">
+                {analysisResult.topPicks.map((pick, i) => (
+                  <div
+                    key={pick.ticker}
+                    className="flex flex-wrap items-center justify-between gap-4 bg-[#1A1A1A] border border-[#2A2A2A] rounded-xl p-4 hover:border-[#F5C518]/30 transition-colors"
+                  >
+                    <div className="flex items-center gap-4">
+                      <span className="text-[#F5C518] font-mono font-bold text-lg w-6">
+                        #{i + 1}
+                      </span>
+                      <div>
+                        <p className="text-white font-bold text-base">{pick.ticker}</p>
+                        <p className="text-gray-400 font-mono text-xs">
+                          {pick.price != null ? `$${pick.price.toFixed(2)}` : '—'}
+                        </p>
+                      </div>
+                    </div>
+
+                    <div className="flex items-center gap-6 flex-wrap">
+                      <div className="text-center">
+                        <p className="text-gray-400 font-mono text-xs">RSI</p>
+                        <p
+                          className={`font-mono font-bold text-sm ${
+                            pick.rsi < 40
+                              ? 'text-emerald-400'
+                              : pick.rsi > 65
+                                ? 'text-red-400'
+                                : 'text-gray-200'
+                          }`}
+                        >
+                          {pick.rsi}
+                        </p>
+                      </div>
+                      <div className="text-center">
+                        <p className="text-gray-400 font-mono text-xs">vs SMA20</p>
+                        <p
+                          className={`font-mono font-bold text-sm ${
+                            pick.vsSMA?.startsWith('-') ? 'text-emerald-400' : 'text-gray-200'
+                          }`}
+                        >
+                          {pick.vsSMA ?? '—'}
+                        </p>
+                      </div>
+                      <div className="text-center">
+                        <p className="text-gray-400 font-mono text-xs">SIGNAL</p>
+                        <p
+                          className={`font-mono font-bold text-sm ${
+                            pick.signal === 'BUY'
+                              ? 'text-[#F5C518]'
+                              : pick.signal === 'WATCH'
+                                ? 'text-blue-400'
+                                : 'text-gray-300'
+                          }`}
+                        >
+                          {pick.signal}
+                        </p>
+                      </div>
+                      <div className="text-center">
+                        <p className="text-gray-400 font-mono text-xs">ENTRY ZONE</p>
+                        <p className="text-white font-mono font-bold text-sm">${pick.entryZone}</p>
+                      </div>
+                      <div className="text-center">
+                        <p className="text-gray-400 font-mono text-xs">SCORE</p>
+                        <p className="text-[#F5C518] font-mono font-bold text-sm">{pick.score}/100</p>
+                      </div>
+                    </div>
+
+                    <button
+                      onClick={() => router.push('/trading')}
+                      className="bg-[#1A1A00] border border-[#F5C518]/50 text-[#F5C518] text-xs font-mono px-3 py-2 rounded-lg hover:bg-[#F5C518] hover:text-black transition-all"
+                    >
+                      + Trade
+                    </button>
+                  </div>
+                ))}
+              </div>
+
+              <p className="text-gray-500 font-mono text-xs mt-4 text-center">
+                * Entry zone = 3% below current price · Not financial advice
+              </p>
+            </div>
+          )}
         </div>
       )}
 
